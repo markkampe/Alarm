@@ -25,7 +25,7 @@
 #define	Z_int	3	// OK if people are home
 #define	Z_tmp	4	// tamper sensors
 
-PROGMEM prog_char zonecfg[][3] = {
+const char zonecfg[][3] PROGMEM = {
 //  zone  normal  pin
   { Z_ent,  0,	   8  },	// legitimate entrances
   { Z_ext,  0,	   9  },	// obvious break-in points
@@ -70,7 +70,7 @@ PROGMEM prog_char zonecfg[][3] = {
 #define D_merc 0	// mercury switch debounce
 #define D_mot  0	// infra-red motion sensor
 
-PROGMEM prog_char sensorcfg[][6] = {
+const char sensorcfg[][6] PROGMEM = {
 //   zone   info    in   grn   red   debounce	location	pr#/color	
   {  Z_tmp, S_hi,    0,    1,    0,   D_mech },	// bell tamper	T13/grn
   {  Z_dis, S_hi,    1,    3,    2,   D_reed },	// front rm lft	T14/blu
@@ -121,7 +121,7 @@ PROGMEM prog_char sensorcfg[][6] = {
  * accessor routine for sensor config data in text segment
  */
 static unsigned char get_sensor_data( int sensor, int x ) {
-	prog_char *p = &sensorcfg[sensor][x];
+	const char *p = &sensorcfg[sensor][x];
 	return pgm_read_byte_near(p);
 }
 
@@ -132,7 +132,7 @@ static unsigned char get_sensor_data( int sensor, int x ) {
  * accessor routine for zone config data in text segment
  */
 static unsigned char get_zone_data( int zone, int x ) {
-	prog_char *p = &zonecfg[zone][x];
+	const char *p = &zonecfg[zone][x];
 	return pgm_read_byte_near(p);
 }
 
@@ -175,7 +175,7 @@ struct ArmCfg armCfg = { A0, 0, 1024 };
  * this is the configuration for the LEDs
  * (duty cycles and blink rates)
  */
-PROGMEM prog_int16_t ledparms[] = 
+const short ledparms[] PROGMEM = 
 //	red	green	off	slow	med	fast
 {	100,	100,	200,	1000,	500,	250 };
 
