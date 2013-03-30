@@ -1,5 +1,5 @@
 #include "Arduino.h"
-#include <config.h>
+#include <Config.h>
 #include <Zone.h>
 
 extern int debug;	// enable debug output

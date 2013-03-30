@@ -8,7 +8,7 @@
  */
 #include <Config.h>
 #include <Sensor.h>
-#include <arduino.h>
+#include <Arduino.h>
 
 extern int debug;	// debug level
 

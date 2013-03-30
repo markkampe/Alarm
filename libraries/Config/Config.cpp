@@ -8,7 +8,7 @@
  * created these classes to encapsulate hard encoded (like
  * in the text segment) configuration data.
  */
-#include "arduino.h"
+#include "Arduino.h"
 #include <avr/pgmspace.h>
 #include "Config.h"
 
