@@ -44,8 +44,11 @@ SensorManager::SensorManager(	Config *config,
 	debounce = (unsigned char *) malloc( cfg->sensors->num_sensors );
 	states = (unsigned char *) malloc( cfg->sensors->num_sensors );
 	for ( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
-		states[i] = S_status|S_prev|S_green| (cfg->sensors->sense(i) ? S_sense : 0);	
-		debounce[i] = 0;
+		// all sensors start out normal, all enabled sensors green
+		states[i] = S_status | S_prev | (cfg->sensors->sense(i) ? S_sense : 0);	
+		if (cfg->sensors->in(i) != 255)
+			states[i] |= S_green;
+		debounce[i] = 0;	// we are not currently debouncing
 #ifdef DEBUG
 		if (debug) {
 			printf("Sensor: %s zone=%d, s/d=<%d,%d>, in=%d, <red,grn>=<%d,%d>\n",
@@ -129,10 +132,13 @@ void SensorManager::sample( bool current ) {
 
 	// run through all of the configured sensors
 	for( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
+
 	    // if sensor isn't configured ignore it
 	    int x = cfg->sensors->in(i);
-	    if (x < 0)
+	    if (x == 255) {
+		setLed(i, led_off, led_none);	// show no status
 		continue;
+	    }
 
 	    // if system just re-armed, clear old trigger indications
 	    if (reset)
@@ -161,10 +167,11 @@ void SensorManager::sample( bool current ) {
 #endif
 	    }
 	
-	    // set the status for the sensor and zone
+	    // see if we have triggered the sensor and zone
 	    if (!v) {
-		triggered(i, true);
 	        zoneMgr->set( cfg->sensors->zone(i), false );
+		if (current)
+			triggered(i, true);
 	    }
 
 	    // set the LED status to reflect the sensor status
