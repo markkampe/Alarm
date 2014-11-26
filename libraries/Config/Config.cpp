@@ -55,8 +55,8 @@ const char zonecfg[][3] PROGMEM = {
 #define X_zone  0	// column for zone
 #define X_info	1	// column for misc config info
 #define X_in    2	// column for input shift index
-#define X_green 3	// column for green output index
-#define X_red   4	// column for red output index
+#define X_red   3	// column for red output index
+#define X_green 4	// column for green output index
 #define X_delay 5	// column for debounce count
 
 /*
@@ -71,7 +71,7 @@ const char zonecfg[][3] PROGMEM = {
 #define D_mot  0	// infra-red motion sensor
 
 const char sensorcfg[][6] PROGMEM = {
-//   zone   info    in   grn   red   debounce	location	pr#/color	
+//   zone   info    in   red   grn   debounce	location	pr#/color	
   {  Z_tmp, S_hi,    0,    1,    0,   D_mech },	// bell tamper	T13/grn
   {  Z_dis, S_hi,    1,    3,    2,   D_reed },	// front rm lft	T14/blu
   {  Z_dis, S_hi,    2,    5,    4,   D_reed },	// front rm rt	T15/orn
