@@ -33,7 +33,7 @@ class SensorManager {
     /**
      * lamp-test during the first few start-up cycles
      */
-    bool lampTest();
+    bool lampTest( bool force );
 
     enum ledState { 	// LED color values
 	led_off = 0, led_red, led_green, led_yellow 

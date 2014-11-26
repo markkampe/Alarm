@@ -40,15 +40,23 @@ void doDebug( char c ) {
     case '1':  
       debug = 1;
       break;
-      
+
+    case 'f': case 'a':
     case '2':
       debug = 2;
       break;
-  
+
+    case 'n':
     case '0':  
       debug = 0;
       break;
+
+    case 'l':	// one minue lamp test
+        printf("Lamp Test\n");
+        mgr->lampTest(true);
+  	return;
   }
+  printf("Log Level: %d\n", debug);
 }
 
 /**
@@ -61,7 +69,7 @@ void setup() {
   stdout = &uartout;
   
   // set default debug level
-  doDebug('1');
+  doDebug('2');
   
   // initialize the LED for status
   pinMode(ledPin, OUTPUT);  
@@ -91,15 +99,15 @@ void setup() {
  *      (2hz when armed, 1hz when not armed)
  */
 void loop() {
-  static bool armed;     // we keep track of system armed status
-  static int prevFlash;  // we keep track of the progress pattern
+  static bool armed = false;	// we keep track of system armed status
+  static int prevFlash = 0;	// we keep track of the progress pattern
 
   /*
    * initially the indicators are set by the lamp tester,
    * but after that completes, they are set based on the
    * status of their respective sensors.
    */
-  if (!mgr->lampTest())
+  if (!mgr->lampTest(false))
         mgr->sample( armed );  // sample does all the work
         
   mgr->update();               // update the indicators

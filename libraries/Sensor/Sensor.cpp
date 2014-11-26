@@ -30,9 +30,11 @@ SensorManager::SensorManager(	Config *config,
 	zoneMgr = zonemanager;
 
 #ifdef	DEBUG
+#define	ANALOG_PIN(x) (x-14)
 	if (debug) {
-		printf("System Armed: pin=A%d, armed=%d(%d)\n",
-			cfg->arm->pin_arm, cfg->arm->sense_arm, cfg->arm->full_scale );
+		printf("Control: Arm pin=A%d, armed=%d/%d\n",
+			ANALOG_PIN(cfg->arm->pin_arm), 
+			cfg->arm->sense_arm, cfg->arm->full_scale );
 		printf("LEDs: <r,g,0>=<%d,%d,%d>us, blink=<%d,%d,%d>ms\n",
 			cfg->leds->usRed(), cfg->leds->usGreen(), cfg->leds->usOff(),
 			cfg->leds->fast(), cfg->leds->med(), cfg->leds->slow());
@@ -252,20 +254,25 @@ void SensorManager::update() {
 /**
  * for the first few seconds after start up, we run a lamp test
  *
+ * @param	force run test even if it has already run
  * @return	true if we are still in the lamp test
  */
-bool SensorManager::lampTest() {
+bool SensorManager::lampTest(bool force) {
 	static bool done;
-	const int numTests = 8;
+	static long startTime;
+	static int numTests = 8;
 	static ledState test[] = {
 	    led_off, led_red, led_green, led_yellow,
 	};
 
-	if (done)
+	if (force && done) {
+		done = false;
+		startTime = 0;
+		numTests = 60;	// one minute of tests
+	} else if (done)
 		return( false );
 
 	// figure out when the tests started
-	static long startTime;
 	if (startTime == 0) 
 		startTime = millis();
 
