@@ -45,12 +45,7 @@ const char zonecfg[][3] PROGMEM = {
  * ardunio doesn't support struct[] initialization.
  * And because memory is so dear on an Ardunio, I
  * decided to put it in PROGMEM.
- *
- * I was thinking I might want to encode other
- * information in the info byte besides the sense
- * of the signal, but sans names, I didn't need more
  */
-#define	S_hi		0x80
 
 #define X_zone  0	// column for zone
 #define X_info	1	// column for misc config info
@@ -58,6 +53,10 @@ const char zonecfg[][3] PROGMEM = {
 #define X_red   3	// column for red output index
 #define X_green 4	// column for green output index
 #define X_delay 5	// column for debounce count
+
+/* sense of signal	*/
+#define	S_hi	0x80	// signal is normally high
+#define	S_lo	0x00	// signal is normally low
 
 /*
  * I went to the trouble of implementing debouncing and
@@ -70,6 +69,10 @@ const char zonecfg[][3] PROGMEM = {
 #define D_merc 0	// mercury switch debounce
 #define D_mot  0	// infra-red motion sensor
 
+/*
+ * if the input port is -1, the sensor will not be read
+ * if the zone is Z_dis the sensor cannot trigger anything
+ */
 const char sensorcfg[][6] PROGMEM = {
 //   zone   info    in   red   grn   debounce	location	pr#/color	
   {  Z_tmp, S_hi,    0,    1,    0,   D_mech },	// bell tamper	T13/grn
