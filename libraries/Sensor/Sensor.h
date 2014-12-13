@@ -23,12 +23,17 @@ class SensorManager {
     /**
      * read the current status of the input cascade
      */
-    void sample( bool armed );
+    void sample();
 
     /**
      * flush the current LED states to the output cascade
      */
     void update();
+
+    /**
+     * reset all triggered indications
+     */
+    void reset();
 
     /**
      * lamp-test during the first few start-up cycles
@@ -61,7 +66,6 @@ class SensorManager {
     InShifter  *inshifter;	// input shift cascade for collection
     OutShifter *outshifter;	// output shift cascade for collection
     ZoneManager *zoneMgr;	// zone alarm relays
-    bool isArmed;		// system known to be armed
 
     unsigned char *debounce;	// debounce counts for each sensor
     unsigned char *states;	// state bytes for each sensor

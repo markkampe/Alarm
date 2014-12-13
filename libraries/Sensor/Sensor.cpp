@@ -71,10 +71,6 @@ SensorManager::SensorManager(	Config *config,
  * @param time (in ms) of incident
  * @param sensor index of sensor
  */
-
-#define	ARM	-1
-#define	DISARM	-2
-
 void SensorManager::logEvent( unsigned long mstime, int sensor ) {
 
 #ifdef	DEBUG
@@ -87,28 +83,18 @@ void SensorManager::logEvent( unsigned long mstime, int sensor ) {
 		hours, mins, secs, ms );
 
 	// then print out the event
-	if (sensor == ARM)
-		printf("ARM\n");
-	else if (sensor == DISARM)
-		printf("DISARM\n");
-	else
-		printf("%s(%d) = %d\n",
-			cfg->sensors->name(sensor), 
-			cfg->sensors->in(sensor), 
-			status(sensor));
+	printf("%s(%d) = %d\n",
+		cfg->sensors->name(sensor), 
+		cfg->sensors->in(sensor), 
+		status(sensor));
 #endif
 }
 
 /**
  * read all of the inputs, debounce them, and update
  * the sensor and LED status accordingly.
- *
- * @param current armed state of system
  */
-void SensorManager::sample( bool current ) {
-
-	// if we just armed, reset any blinking indicators
-	bool reset = current && !isArmed;
+void SensorManager::sample() {
 
 	// note the time of this sample
 	unsigned long now = millis();
@@ -119,17 +105,6 @@ void SensorManager::sample( bool current ) {
 	// start all relays out normal
 	zoneMgr->resetAll();
 	
-#ifdef	DEBUG
-	if (debug) {
-		if (reset) {
-			logEvent( now, ARM );
-		} else if (isArmed && !current) {
-			logEvent( now, DISARM );
-		}
-	}
-	
-#endif
-
 	// run through all of the configured sensors
 	for( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
 
@@ -139,10 +114,6 @@ void SensorManager::sample( bool current ) {
 		setLed(i, led_off, led_none);	// show no status
 		continue;
 	    }
-
-	    // if system just re-armed, clear old trigger indications
-	    if (reset)
-		triggered(i,false);
 
 	    // get the current (normalized) value of this sensor
 	    bool v = (inshifter->get( x ) == cfg->sensors->sense(i));
@@ -167,20 +138,28 @@ void SensorManager::sample( bool current ) {
 #endif
 	    }
 	
-	    // see if we have triggered the sensor and zone
-	    if (!v) {
-	        zoneMgr->set( cfg->sensors->zone(i), false );
-		if (current)
-			triggered(i, true);
+	    // figure out what to do with the lights and zone
+	    enum ledState state = led_green;
+	    enum ledBlink blink = triggered(i) ? led_med : led_none;
+	    if (!v) {	// this sensor is in a triggered state
+		triggered(i, true);
+		// see whether or not the zone is armed
+		int z = cfg->sensors->zone(i);
+		if (z > 0 && zoneMgr->armed(z)) {
+	        	zoneMgr->set( z, false );
+			state = led_red;
+			blink = led_fast;
+		} else {
+			state = led_yellow;
+	    		blink = led_fast;
+	    	}
 	    }
 
 	    // set the LED status to reflect the sensor status
-	    ledBlink blink = triggered(i) ? (v ? led_med : led_fast) : led_none;
-	    setLed( i, v ? led_green : led_red, blink );
+	    setLed( i, state, blink );
 	}
 
 	zoneMgr->update();	// flush out the zone relays
-	isArmed = current;	// remember this armed state
 }
 
 /**
@@ -379,6 +358,15 @@ int SensorManager::blinkRate( int sensor ) {
 		return cfg->leds->slow();
 	    default:
 		return 0;
+	}
+}
+
+/**
+ * reset the triggered status of all sensors
+ */
+void SensorManager::reset() {
+	for( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
+		triggered(i, false);
 	}
 }
 

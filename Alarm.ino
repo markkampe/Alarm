@@ -108,7 +108,7 @@ void loop() {
    * status of their respective sensors.
    */
   if (!mgr->lampTest(false))
-        mgr->sample( armed );  // sample does all the work
+        mgr->sample();  // sample does all the work
         
   mgr->update();               // update the indicators
   

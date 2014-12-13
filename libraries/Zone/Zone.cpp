@@ -12,7 +12,6 @@ extern int debug;	// enable debug output
 ZoneManager::ZoneManager( Config *config ) {
 
 	cfg = config;		// note configuration object
-	zoneStates = 0x00;	// no zones are triggered
 
 	// program each relay control pin for output
 	for ( int i = 0; i < cfg->zones->num_relays; i++ ) {
@@ -24,7 +23,7 @@ ZoneManager::ZoneManager( Config *config ) {
 
 #ifdef	DEBUG
 		if (debug) {
-			printf("Relay: zone=%d, pin=%d, normal=%d, period=%d\n",
+			printf("Relay: zone=%d, out=%d, normal=%d, period=%d\n",
 				cfg->zones->zone(i),
 				cfg->zones->pin(i),
 				cfg->zones->normal(i),
@@ -32,6 +31,33 @@ ZoneManager::ZoneManager( Config *config ) {
 		}
 #endif
 	}
+
+	resetAll();
+}
+
+/**
+ * generate a log message for a zone state/arm change
+ *
+ * @param time (in ms) of incident
+ * @param sensor index of sensor
+ */
+void ZoneManager::logEvent( unsigned long mstime, int zone ) {
+
+#ifdef	DEBUG
+	// deconstruct and log the time
+	int ms   = mstime % 1000;	mstime /= 1000;
+	int secs = mstime % 60;		mstime /= 60;
+	int mins = mstime % 60;		mstime /= 60;
+	int hours = mstime % 24;
+	printf("%02d:%02d:%02d.%03d  ",
+		hours, mins, secs, ms );
+
+	// then print out the event
+	printf("Zone %d: ", zone);
+	char mask = 1 << zone;
+	printf( (zoneArmed & mask) ? "armed, " : "disarmed, " );
+	printf( (zoneStates & mask) ? "triggered\n" : "normal\n" );
+#endif
 }
 
 /**
@@ -45,24 +71,63 @@ ZoneManager::ZoneManager( Config *config ) {
  * @param normal	set to normal (vs triggered)
  */
 void ZoneManager::set( int zone, bool normal ) {
-	if (zone >= 0 && zone < 8) {
-		byte mask = 1 << zone;
-		if (normal)
-			zoneStates &= ~mask;
-		else {
-			zoneStates |= mask;
-			// if zone currently triggered, do not re-trigger
-			if (triggerTime[zone] == 0) {
-				// compute when the trigger end time
-				unsigned long t = cfg->zones->min_trigger;
-				t *= 1000;	// turn it to milliseconds
-				t += millis();	// add this to the current time
-				if (t == 0)	// zero is not a legal time
-					t++;
-				triggerTime[zone] = t;
-			}
+	if (zone < 0 || zone > 8)
+		return;
+
+	byte mask = 1 << zone;
+	if (normal)
+		zoneStates &= ~mask;
+	else {
+		zoneStates |= mask;
+		// if zone currently triggered, do not re-trigger
+		if (triggerTime[zone] == 0) {
+			// compute when the trigger end time
+			unsigned long t = cfg->zones->min_trigger;
+			t *= 1000;	// turn it to milliseconds
+			t += millis();	// add this to the current time
+			if (t == 0)	// zero is not a legal time
+				t++;
+			triggerTime[zone] = t;
 		}
 	}
+#ifdef	DEBUG
+	if (debug > 1) {
+		logEvent(millis(), zone);
+	}
+#endif
+
+}
+
+/**
+ * set the armed/disarmed state of a zone
+ *
+ */
+void ZoneManager::arm( int zone, bool armed ) {
+	if (zone < 0 || zone > 8)
+		return;
+
+	char mask = 1 << zone;
+
+	if (armed)
+		zoneArmed != mask;
+	else {
+		zoneArmed &= ~mask;
+		zoneStates &= ~mask;
+		triggerTime[zone] = 0;
+	}
+#ifdef	DEBUG
+	if (debug > 1) {
+		logEvent(millis(), zone);
+	}
+#endif
+}
+
+/**
+ * query the armed state of a zone
+ */
+bool ZoneManager::armed( int zone ) {
+	char mask = 1 << zone;
+	return ((zoneArmed & mask) != 0);
 }
 
 /**
@@ -70,6 +135,7 @@ void ZoneManager::set( int zone, bool normal ) {
  */
 void ZoneManager::resetAll() {
 	zoneStates = 0x00;
+	zoneArmed = 0x00;
 }
 
 /**

@@ -17,10 +17,29 @@ class ZoneManager {
     ZoneManager( Config *config );
     
     /**
+     * log a zone state change event
+     *
+     * @param time (in milliseconds of event)
+     * @param zone that experienced the change
+     */
+    void logEvent( unsigned long mstime, int zone );
+
+    /**
      * set the state of a particular zone relay
      *
      */
     void set( int zone, bool normal );
+
+    /**
+     * set the armed/disarmed state of a zone
+     *
+     */
+    void arm( int zone, bool armed );
+
+    /**
+     * query the armed state of a zone
+     */
+    bool armed( int zone );
 
     /**
      * reset all of the zone relays (before a scan)
@@ -35,7 +54,8 @@ class ZoneManager {
 
   private:
     Config *cfg;		// system configuration
-    unsigned char zoneStates;	// current state of each zone
-    unsigned long triggerTime[MAX_ZONES];	// when it was triggered
+    unsigned char zoneStates;	// current triggered state of each zone
+    unsigned char zoneArmed;	// current armed state of eazh zone
+    unsigned long triggerTime[MAX_ZONES];	// end of trigger time
 };
 #endif
