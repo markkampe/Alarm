@@ -266,8 +266,8 @@ void SensorManager::update() {
  */
 bool SensorManager::lampTest(bool force) {
 	static bool done;
-	static long startTime;
-	static int numTests = 8;
+	static unsigned long startTime;
+	static int numTests = 8;	// power on self-test
 	static ledState test[] = {
 	    led_off, led_red, led_green, led_yellow,
 	};
@@ -279,12 +279,13 @@ bool SensorManager::lampTest(bool force) {
 	} else if (done)
 		return( false );
 
-	// figure out when the tests started
-	if (startTime == 0) 
-		startTime = millis();
+	// figure out when the tests started (checking for timer wrap)
+	unsigned long now = millis();
+	if (startTime == 0 || now < startTime)
+		startTime = now;
 
 	// see if we're done with the tests yet
-	int second = (millis() - startTime)/1000;
+	int second = (now - startTime)/1000;
 	if (second > numTests) {
 		done = true;
 		return false;
