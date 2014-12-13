@@ -3,6 +3,9 @@
 
 #define	DEBUG		1	// enable debug output
 
+// maximum timeout interval ... used for wrap detection
+#define	MAX_TIMEOUT	(10*60*1000)
+
 /**
  * These classes encapsulate the form in which we package
  * configuration information for the alarm application -
