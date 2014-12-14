@@ -22,15 +22,15 @@
 #define	Z_dis	0	// disabled
 #define	Z_ent	1	// entry
 #define	Z_ext	2	// external perimeter
-#define	Z_int	3	// OK if people are home
-#define	Z_tmp	4	// tamper sensors
+#define	Z_brk	3	// window breakage
+#define	Z_int	4	// OK if people are home
 
 const char zonecfg[][3] PROGMEM = {
 //  zone  normal  pin
   { Z_ent,  0,	   8  },	// legitimate entrances
   { Z_ext,  0,	   9  },	// obvious break-in points
-  { Z_int,  0,	   10 },	// OK if people are home
-  { Z_tmp,  0,	   11 },	// tamper sensors
+  { Z_brk,  0,	   10 },	// window breakage sensors
+  { Z_int,  0,	   11 },	// OK if people are home
   {     5,  0,     12 },	// unused zone
   {-1,	  -1,	  -1, }
 };
@@ -79,34 +79,34 @@ const char sensorcfg[][6] PROGMEM = {
   {  Z_ent, S_lo,    1,    2,    3,   D_reed },	// garage door	T24/orn
   {  Z_ext, S_lo,    2,    4,    5,   D_reed },	// shop door	T25/grn
   {  Z_int, S_lo,    3,    6,    7,   D_reed },	// closet door	T22/blu
-  {  Z_tmp, S_lo,    4,    8,    9,   D_mech },	// bell tamper	T13/grn
+  {  Z_ext, S_lo,    4,    8,    9,   D_mech },	// bell tamper	T13/grn
   {  Z_int, S_lo,    5,   10,   11,   D_reed },	// mstr br sld	T21/brn
   {  Z_int, S_lo,    6,   12,   13,   D_reed },	// laundry sld	B16/blu
   {  Z_int, S_lo,    7,   14,   15,   D_reed },	// laundry door	B17/brn
   {  Z_int, S_lo,    8,   16,   17,   D_reed },	// din rm sld	B20/blu
   {  Z_int, S_lo,    9,   18,   19,   D_reed },	// north br	T18/blu	OPEN
-  {  Z_ext, S_lo,   10,   20,   21,   D_merc },	// n br brk L	T19/orn
-  {  Z_int, S_lo,   11,   22,   23,   D_merc },	// n br brk R	T20/orn OPEN
+  {  Z_brk, S_lo,   10,   20,   21,   D_merc },	// n br brk L	T19/orn
+  {  Z_brk, S_lo,   11,   22,   23,   D_merc },	// n br brk R	T20/orn OPEN
   {  Z_ext, S_lo,   12,   24,   25,   D_reed },	// study south	B04/blu
-  {  Z_ext, S_lo,   13,   26,   27,   D_merc },	// stdy brk s L	B05/orn
-  {  Z_int, S_lo,   14,   28,   29,   D_merc },	// stdy brk s R	B06/grn
+  {  Z_brk, S_lo,   13,   26,   27,   D_merc },	// stdy brk s L	B05/orn
+  {  Z_brk, S_lo,   14,   28,   29,   D_merc },	// stdy brk s R	B06/grn
   {  Z_ent, S_lo,   15,   30,   31,   D_reed },	// back entry	B14/blu
   {  Z_ext, S_lo,   16,   32,   33,   D_reed },	// basement dr	B15/grn
   {  Z_int, S_lo,   17,   34,   35,   D_reed },	// play room	B01/blu
-  {  Z_ext, S_lo,   18,   36,   37,   D_merc },	// ply brk L	B02/orn
-  {  Z_int, S_lo,   19,   38,   39,   D_merc },	// ply brk R	B03/grn
+  {  Z_brk, S_lo,   18,   36,   37,   D_merc },	// ply brk L	B02/orn
+  {  Z_brk, S_lo,   19,   38,   39,   D_merc },	// ply brk R	B03/grn
   {  Z_int, S_lo,   20,   40,   41,   D_reed },	// study north	B07/blu
-  {  Z_ext, S_lo,   21,   42,   43,   D_merc },	// stdy brk n L	B08/orn
-  {  Z_int, S_lo,   22,   44,   45,   D_merc },	// stdy brk n R	B09/grn
+  {  Z_brk, S_lo,   21,   42,   43,   D_merc },	// stdy brk n L	B08/orn
+  {  Z_brk, S_lo,   22,   44,   45,   D_merc },	// stdy brk n R	B09/grn
   {  Z_dis, S_lo,   23,   46,   47,   D_reed },	// stairway 	T17/blu BROKEN
   {  Z_int, S_lo,   24,   48,   49,   D_reed },	// play rm sld	B10/blu
-  {  Z_ext, S_lo,   25,   50,   51,   D_merc },	// ply sld brkL	B11/orn
-  {  Z_int, S_lo,   26,   52,   53,   D_merc },	// ply sld brkR	B12/grn
+  {  Z_brk, S_lo,   25,   50,   51,   D_merc },	// ply sld brkL	B11/orn
+  {  Z_brk, S_lo,   26,   52,   53,   D_merc },	// ply sld brkR	B12/grn
   {  Z_ext, S_lo,   27,   54,   55,   D_reed },	// south office	B13/brn
   {  Z_ext, S_lo,   28,   56,   57,   D_reed },	// front rm lft T14/blu BROKEN
   {  Z_ext, S_lo,   29,   58,   59,   D_reed },	// front rm rt  T15/orn BROKEN
-  {  Z_ext, S_lo,   30,   60,   61,   D_merc },	// front brk	T16/grn BROKEN
-  {  Z_tmp, S_lo,   -1,   62,   63,   D_mech },	// key tamper	back	NOTYET
+  {  Z_brk, S_lo,   30,   60,   61,   D_merc },	// front brk	T16/grn BROKEN
+  {  Z_ext, S_lo,   -1,   62,   63,   D_mech },	// key tamper	back	NOTYET
   { -1,       -1,   -1,   -1,   -1,   -1 }
 };
 
