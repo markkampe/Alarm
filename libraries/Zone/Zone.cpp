@@ -49,7 +49,7 @@ ZoneManager::ZoneManager( Config *config ) {
  * @param normal	set to normal (vs triggered)
  */
 void ZoneManager::set( int zone, bool normal ) {
-	if (zone < 1 || zone > 8)
+	if (zone < 1 || zone > MAX_ZONES)
 		return;
 
 	byte mask = 1 << (zone - 1);
@@ -58,7 +58,7 @@ void ZoneManager::set( int zone, bool normal ) {
 	else {
 		zoneStates |= mask;
 		// if zone currently triggered, do not re-trigger
-		if (triggerTime[zone] == 0) {
+		if (triggerTime[zone-1] == 0) {
 			// compute when the trigger end time
 			unsigned long t = cfg->zones->min_trigger;
 			t *= 1000;	// turn it to milliseconds
@@ -74,11 +74,8 @@ void ZoneManager::set( int zone, bool normal ) {
 		logTime(millis());
 		putchar( normal ? '-' : '!' );
 		putchar(' ');
-		putchar('z');
-		putchar('o');
-		putchar('n');
-		putchar('e');
-		putchar(' ');
+		putchar('Z');
+		putchar('=');
 		putchar('0' + zone);
 		putchar('\n');
 	}
@@ -90,13 +87,13 @@ void ZoneManager::set( int zone, bool normal ) {
  *
  */
 void ZoneManager::arm( int zone, bool armed ) {
-	if (zone < 1 || zone > 8)
+	if (zone < 1 || zone > MAX_ZONES)
 		return;
 
 	char mask = 1 << (zone-1);
 
 	if (armed)
-		zoneArmed != mask;
+		zoneArmed |= mask;
 	else {
 		zoneArmed &= ~mask;
 		zoneStates &= ~mask;
@@ -107,19 +104,13 @@ void ZoneManager::arm( int zone, bool armed ) {
 		// excuse: strings take up data space
 		logTime(millis());
 		if (!armed) {
-			putchar('d');
-			putchar('i');
-			putchar('s');
+			putchar('D');
+		} else {
+			putchar('A');
 		}
-		putchar('A');
-		putchar('R');
-		putchar('M');
 		putchar(' ');
-		putchar('z');
-		putchar('o');
-		putchar('n');
-		putchar('e');
-		putchar(' ');
+		putchar('Z');
+		putchar('=');
 		putchar('0' + zone);
 		putchar('\n');
 	}
@@ -130,7 +121,9 @@ void ZoneManager::arm( int zone, bool armed ) {
  * query the armed state of a zone
  */
 bool ZoneManager::armed( int zone ) {
-	char mask = 1 << zone;
+	if (zone < 1 || zone > MAX_ZONES)
+		return false;
+	unsigned char mask = 1 << (zone - 1);
 	return ((zoneArmed & mask) != 0);
 }
 

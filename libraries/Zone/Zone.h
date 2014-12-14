@@ -1,7 +1,7 @@
 #ifndef ZONE_H
 #define ZONE_H
 
-#define	MAX_ZONES 8
+#define	MAX_ZONES 4
 
 /**
  * a managed collection of zone alarm relays
@@ -48,6 +48,6 @@ class ZoneManager {
     Config *cfg;		// system configuration
     unsigned char zoneStates;	// current triggered state of each zone
     unsigned char zoneArmed;	// current armed state of eazh zone
-    unsigned long triggerTime[MAX_ZONES];	// end of trigger time
+    unsigned short triggerTime[MAX_ZONES];	// end of trigger time
 };
 #endif
