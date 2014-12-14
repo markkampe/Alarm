@@ -83,56 +83,10 @@ void ZoneManager::set( int zone, bool normal ) {
 }
 
 /**
- * set the armed/disarmed state of a zone
- *
- */
-void ZoneManager::arm( int zone, bool armed ) {
-	if (zone < 1 || zone > MAX_ZONES)
-		return;
-
-	char mask = 1 << (zone-1);
-
-	if (armed)
-		zoneArmed |= mask;
-	else {
-		zoneArmed &= ~mask;
-		zoneStates &= ~mask;
-		triggerTime[zone-1] = 0;
-	}
-#ifdef	DEBUG_EVT
-	if (debug > 1) {
-		// excuse: strings take up data space
-		logTime(millis());
-		if (!armed) {
-			putchar('D');
-		} else {
-			putchar('A');
-		}
-		putchar(' ');
-		putchar('Z');
-		putchar('=');
-		putchar('0' + zone);
-		putchar('\n');
-	}
-#endif
-}
-
-/**
- * query the armed state of a zone
- */
-bool ZoneManager::armed( int zone ) {
-	if (zone < 1 || zone > MAX_ZONES)
-		return false;
-	unsigned char mask = 1 << (zone - 1);
-	return ((zoneArmed & mask) != 0);
-}
-
-/**
  * reset all of the zone relays (before a scan)
  */
 void ZoneManager::resetAll() {
 	zoneStates = 0x00;
-	zoneArmed = 0x00;
 }
 
 /**

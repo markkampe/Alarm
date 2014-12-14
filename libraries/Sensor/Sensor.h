@@ -48,6 +48,14 @@ class SensorManager {
 	led_none = 0, led_slow, led_med, led_fast
     };
 
+    /**
+     * @param zone to be updated
+     * @param armed
+     */
+    void arm( int zone, bool armed );
+
+    unsigned char zoneArmed;	// zone armed bits
+
   private:
     /*
      * Memory is so precious on the Arduino that we:

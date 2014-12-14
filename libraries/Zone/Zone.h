@@ -23,17 +23,6 @@ class ZoneManager {
     void set( int zone, bool normal );
 
     /**
-     * set the armed/disarmed state of a zone
-     *
-     */
-    void arm( int zone, bool armed );
-
-    /**
-     * query the armed state of a zone
-     */
-    bool armed( int zone );
-
-    /**
      * reset all of the zone relays (before a scan)
      */
     void resetAll();
@@ -47,7 +36,6 @@ class ZoneManager {
   private:
     Config *cfg;		// system configuration
     unsigned char zoneStates;	// current triggered state of each zone
-    unsigned char zoneArmed;	// current armed state of eazh zone
     unsigned short triggerTime[MAX_ZONES];	// end of trigger time
 };
 #endif

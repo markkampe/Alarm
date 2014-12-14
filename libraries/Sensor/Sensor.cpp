@@ -11,6 +11,9 @@
 #include <Arduino.h>
 
 extern int debug;	// debug level
+#ifdef DEBUG_EVT
+extern void logTime( unsigned long );
+#endif
 
 /**
  * a managed collection of LEDs
@@ -28,6 +31,7 @@ SensorManager::SensorManager(	Config *config,
 	inshifter = input;
 	outshifter = output;
 	zoneMgr = zonemanager;
+	zoneArmed = 0;
 
 #ifdef	DEBUG_CFG
 	if (debug) {
@@ -107,7 +111,6 @@ void SensorManager::sample() {
 #ifdef	DEBUG_EVT
 		if (debug > 1) {	
 			// excuse: strings take up data space
-			extern void logTime( unsigned long );
 			logTime( now );
 			putchar( v == 0 ? '!' : '-' );
 			putchar(' ');
@@ -125,9 +128,13 @@ void SensorManager::sample() {
 	    enum ledBlink blink = triggered(i) ? led_med : led_none;
 	    if (!v) {	// this sensor is in a triggered state
 		triggered(i, true);
+
 		// see whether or not the zone is armed
 		int z = cfg->sensors->zone(i);
-		if (z > 0 && zoneMgr->armed(z)) {
+		unsigned char mask = 0;
+		if (z >= 1 && z <= 8)
+			mask = 1 << (z-1);
+		if ((zoneArmed & mask) != 0) {
 	        	zoneMgr->set( z, false );
 			state = led_red;
 			blink = led_fast;
@@ -245,7 +252,6 @@ bool SensorManager::lampTest(bool force) {
 	if (startTime == 0 || now < startTime) {
 		startTime = now;
 #ifdef DEBUG_EVT
-		extern void logTime( unsigned long );
 		if (debug > 1) {
 			// excuse: strings take up data space
 			logTime(now);
@@ -263,7 +269,6 @@ bool SensorManager::lampTest(bool force) {
 	if (second > numTests) {
 		done = true;
 #ifdef DEBUG_EVT
-		extern void logTime( unsigned long );
 		if (debug > 1) {
 			// excuse: strings take up data space
 			logTime(now);
@@ -399,6 +404,33 @@ bool SensorManager::triggered( int sensor ) {
 		return( (states[sensor] & S_trigger) != 0 );
 	else
 		return( false );
+}
+
+/**
+* @param zone to be updated
+* @param armed
+*/
+void SensorManager::arm( int zone, bool armed ) {
+	if (zone < 1 || zone > 8)
+		return;
+	unsigned char mask = 1 << (zone-1);
+	if (armed)
+		zoneArmed |= mask;
+	else
+		zoneArmed &= ~mask;
+
+#ifdef	DEBUG_EVT
+	if (debug > 1) {	
+		// excuse: strings take up data space
+		logTime( millis() );
+		putchar(armed ? 'A' : 'd');
+		putchar(' ');
+		putchar('Z');
+		putchar('=');
+		putchar('0' + zone%10);
+		putchar('\n');
+	}
+#endif
 }
 
 /*

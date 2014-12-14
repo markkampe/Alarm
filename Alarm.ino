@@ -152,14 +152,14 @@ void loop() {
 					char mask = 1 << i;
 					if ((difs & mask) != 0) {
 						if (armed & mask) {  // arm
-							zones->arm(i+1, true);
+							mgr->arm(i+1, true);
 							mgr->reset();
 						} else {	// disarm
-							zones->arm(i+1, false);
+							mgr->arm(i+1, false);
 						}
 					}
 				}
-			}
+			} 
                         prevArm = armed;
 		}
 	}
