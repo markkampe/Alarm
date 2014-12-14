@@ -29,7 +29,7 @@ OutShifter::OutShifter( int regs, int dataP, int clockP, int latchP ) :
     Shiftreg( regs, dataP, clockP, latchP ) {
       pinMode( dataP, OUTPUT );
 
-#ifdef	DEBUG
+#ifdef	DEBUG_CFG
     extern int debug;
     if (debug) {
 	printf("Outshifter: regs=%d, data=%d, clock=%d, latch=%d\n",
@@ -88,7 +88,7 @@ InShifter::InShifter( int regs, int dataP, int clockP, int latchP ) :
     Shiftreg( regs, dataP, clockP, latchP ) { 
 	pinMode( dataP, INPUT );
 
-#ifdef	DEBUG
+#ifdef	DEBUG_CFG
 	extern int debug;
 	if (debug) {
 		printf("Inshifter: regs=%d, data=%d, clock=%d, latch=%d\n",
