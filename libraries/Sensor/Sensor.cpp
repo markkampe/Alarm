@@ -109,7 +109,7 @@ void SensorManager::sample() {
 			// excuse: strings take up data space
 			extern void logTime( unsigned long );
 			logTime( now );
-			putchar( v != 0 ? '!' : '-' );
+			putchar( v == 0 ? '!' : '-' );
 			putchar(' ');
 			putchar('S');
 			putchar('=');
@@ -133,7 +133,7 @@ void SensorManager::sample() {
 			blink = led_fast;
 		} else {
 			state = led_yellow;
-	    		blink = led_fast;
+			blink = led_med;
 	    	}
 	    }
 
