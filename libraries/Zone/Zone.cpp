@@ -21,9 +21,9 @@ ZoneManager::ZoneManager( Config *config ) {
 		pinMode( cfg->zones->pin(i), OUTPUT );
 		triggerTime[i] = 0;
 
-#ifdef	DEBUG
+#ifdef	DEBUG_CFG
 		if (debug) {
-			printf("Relay: zone=%d, out=%d, normal=%d, period=%d\n",
+			printf("ZONE: zone=%d, out=%d, sense=%d, period=%d\n",
 				cfg->zones->zone(i),
 				cfg->zones->pin(i),
 				cfg->zones->normal(i),
@@ -53,10 +53,10 @@ void ZoneManager::logEvent( unsigned long mstime, int zone ) {
 		hours, mins, secs, ms );
 
 	// then print out the event
-	printf("Zone %d: ", zone);
-	char mask = 1 << zone;
-	printf( (zoneArmed & mask) ? "armed, " : "disarmed, " );
-	printf( (zoneStates & mask) ? "triggered\n" : "normal\n" );
+	printf("Z=%d: ", zone);
+	char mask = 1 << (zone - 1);
+	printf( (zoneArmed & mask) ? "A," : "d," );
+	printf( (zoneStates & mask) ? "T\n" : "n\n" );
 #endif
 }
 
@@ -71,10 +71,10 @@ void ZoneManager::logEvent( unsigned long mstime, int zone ) {
  * @param normal	set to normal (vs triggered)
  */
 void ZoneManager::set( int zone, bool normal ) {
-	if (zone < 0 || zone > 8)
+	if (zone < 1 || zone > 8)
 		return;
 
-	byte mask = 1 << zone;
+	byte mask = 1 << (zone - 1);
 	if (normal)
 		zoneStates &= ~mask;
 	else {
@@ -87,7 +87,7 @@ void ZoneManager::set( int zone, bool normal ) {
 			t += millis();	// add this to the current time
 			if (t == 0)	// zero is not a legal time
 				t++;
-			triggerTime[zone] = t;
+			triggerTime[zone-1] = t;
 		}
 	}
 #ifdef	DEBUG
@@ -103,17 +103,17 @@ void ZoneManager::set( int zone, bool normal ) {
  *
  */
 void ZoneManager::arm( int zone, bool armed ) {
-	if (zone < 0 || zone > 8)
+	if (zone < 1 || zone > 8)
 		return;
 
-	char mask = 1 << zone;
+	char mask = 1 << (zone-1);
 
 	if (armed)
 		zoneArmed != mask;
 	else {
 		zoneArmed &= ~mask;
 		zoneStates &= ~mask;
-		triggerTime[zone] = 0;
+		triggerTime[zone-1] = 0;
 	}
 #ifdef	DEBUG
 	if (debug > 1) {
@@ -153,18 +153,18 @@ void ZoneManager::update() {
 			continue;
 
 		// see if this zone is currently triggered
-		bool triggered = (zoneStates & (1 << z)) != 0;
+		bool triggered = (zoneStates & (1 << (z-1))) != 0;
 			
 		// see if a prior trigger is still running
-		if (!triggered && triggerTime[z] > 0) {
-			unsigned long t = triggerTime[z];
+		if (!triggered && triggerTime[z-1] > 0) {
+			unsigned long t = triggerTime[z-1];
 			if (now < t)
 				triggered = (t - now) < MAX_TIMEOUT;
 			else if (t < MAX_TIMEOUT)	// check for wrap
 				triggered = (now - t) > MAX_TIMEOUT;
 		}
 		if (!triggered)
-			triggerTime[z] = 0;
+			triggerTime[z-1] = 0;
 
 		// and write the appropriate value to the relay 
 		int value = (triggered == cfg->zones->normal(i)) ? LOW : HIGH;
