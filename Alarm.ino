@@ -38,6 +38,7 @@ static int uart_putchar( char c, FILE *stream ) {
     return( 0 );
 }
 
+#ifdef DEBUG
 // run-time diagnostic options
 void doDebug( char c ) {
   switch( c ) {
@@ -57,11 +58,19 @@ void doDebug( char c ) {
 		mgr->lampTest(true);
 		return;
 	}
-	printf("D=%d\n", debug);
+  
+  // log the debug level (strings take up data space)
+  if (debug > 1) {
+    logTime(millis());
+    putchar('D');
+    putchar('B');
+    putchar('G');
+    putchar('=');
+    putchar('0' + debug);
+    putchar('\n');
+  }
 }
-
-void freemem() {
-}
+#endif
 
 /**
  * configure the pins and initialize the resource managers.
@@ -71,8 +80,6 @@ void setup() {
 	Serial.begin(9600);
 	fdev_setup_stream( &uartout, uart_putchar, NULL, _FDEV_SETUP_WRITE );
 	stdout = &uartout;
-
-        freemem();
 
 	// set default debug level
 	doDebug('2');
@@ -131,11 +138,12 @@ void loop() {
 	if (flash != prevFlash) {
 		digitalWrite(ledPin, flash ? HIGH : LOW );
 		if (flash) {	// once per on/off cycle
+#ifdef DEBUG
 			// check for (unlikely) debug console input
 			if (Serial.available()) {
 				doDebug( Serial.read() );
 			}
-
+#endif
 			// check for changes in zone armedness
 			unsigned char armed = ctrls->read();
 			unsigned char difs = armed ^ prevArm;
@@ -157,4 +165,34 @@ void loop() {
 	}
 	
 	prevFlash = flash;
+}
+
+/**
+ * print out a log line time header
+ *
+ *  using putchar because strings take up data space
+ */
+void logTime( unsigned long mstime ) {
+
+#ifdef	DEBUG_EVT
+	// deconstruct and log the time
+	int ms   = mstime % 1000;	mstime /= 1000;
+	int secs = mstime % 60;		mstime /= 60;
+	int mins = mstime % 60;		mstime /= 60;
+	int hours = mstime % 24;
+
+	putchar('0' + hours/10);
+	putchar('0' + hours%10);
+	putchar(':');
+	putchar('0' + mins/10);
+	putchar('0' + mins%10);
+	putchar(':');
+	putchar('0' + secs/10);
+	putchar('0' + secs%10);
+	putchar('.');
+	putchar('0' + ms/100);
+	putchar('0' + (ms/10) % 10);
+	putchar('0' + ms%10);
+	putchar(' ');
+#endif
 }

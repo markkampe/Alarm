@@ -132,13 +132,5 @@ class SensorManager {
      * @return the triggered status of a sensor
      */
     bool triggered( int sensor );
-
-    /**
-     * generate a log message for a sensor status change
-     *
-     * @param time (in ms) of incident
-     * @param sensor index of sensor
-     */
-    void logEvent( unsigned long time, int sensor );
 };
 #endif

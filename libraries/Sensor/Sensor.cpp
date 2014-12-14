@@ -61,30 +61,6 @@ SensorManager::SensorManager(	Config *config,
 
 }
 
-/**
- * generate a log message for a sensor status change
- *
- * @param time (in ms) of incident
- * @param sensor index of sensor
- */
-void SensorManager::logEvent( unsigned long mstime, int sensor ) {
-
-#ifdef	DEBUG
-	// deconstruct and log the time
-	int ms   = mstime % 1000;	mstime /= 1000;
-	int secs = mstime % 60;		mstime /= 60;
-	int mins = mstime % 60;		mstime /= 60;
-	int hours = mstime % 24;
-	printf("%02d:%02d:%02d.%03d  ",
-		hours, mins, secs, ms );
-
-	// then print out the event
-	printf("%s(%d) = %d\n",
-		cfg->sensors->name(sensor), 
-		cfg->sensors->in(sensor), 
-		status(sensor));
-#endif
-}
 
 /**
  * read all of the inputs, debounce them, and update
@@ -128,9 +104,19 @@ void SensorManager::sample() {
 	    // see if the stable value is a change
 	    if (v != status(i)) {
 	        status( i, v );
-#ifdef	DEBUG
-		if (debug > 1)
-			logEvent( now, i );
+#ifdef	DEBUG_EVT
+		if (debug > 1) {	
+			// excuse: strings take up data space
+			extern void logTime( unsigned long );
+			logTime( now );
+			putchar( v != 0 ? '!' : '-' );
+			putchar(' ');
+			putchar('S');
+			putchar('=');
+			putchar('0' + i/10);
+			putchar('0' + i%10);
+			putchar('\n');
+		}
 #endif
 	    }
 	
@@ -256,13 +242,37 @@ bool SensorManager::lampTest(bool force) {
 
 	// figure out when the tests started (checking for timer wrap)
 	unsigned long now = millis();
-	if (startTime == 0 || now < startTime)
+	if (startTime == 0 || now < startTime) {
 		startTime = now;
+#ifdef DEBUG_EVT
+		extern void logTime( unsigned long );
+		if (debug > 1) {
+			// excuse: strings take up data space
+			logTime(now);
+			putchar('T');
+			putchar('E');
+			putchar('S');
+			putchar('T');
+			putchar('\n');
+		}
+#endif
+	}
 
 	// see if we're done with the tests yet
 	int second = (now - startTime)/1000;
 	if (second > numTests) {
 		done = true;
+#ifdef DEBUG_EVT
+		extern void logTime( unsigned long );
+		if (debug > 1) {
+			// excuse: strings take up data space
+			logTime(now);
+			putchar('R');
+			putchar('U');
+			putchar('N');
+			putchar('\n');
+		}
+#endif
 		return false;
 	}
 

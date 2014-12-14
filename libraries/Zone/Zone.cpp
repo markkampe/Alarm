@@ -3,6 +3,9 @@
 #include <Zone.h>
 
 extern int debug;	// enable debug output
+#ifdef	DEBUG_EVT
+extern void logTime( unsigned long );
+#endif
 
 /**
  * create a managed zone alarm relays
@@ -36,31 +39,6 @@ ZoneManager::ZoneManager( Config *config ) {
 }
 
 /**
- * generate a log message for a zone state/arm change
- *
- * @param time (in ms) of incident
- * @param sensor index of sensor
- */
-void ZoneManager::logEvent( unsigned long mstime, int zone ) {
-
-#ifdef	DEBUG
-	// deconstruct and log the time
-	int ms   = mstime % 1000;	mstime /= 1000;
-	int secs = mstime % 60;		mstime /= 60;
-	int mins = mstime % 60;		mstime /= 60;
-	int hours = mstime % 24;
-	printf("%02d:%02d:%02d.%03d  ",
-		hours, mins, secs, ms );
-
-	// then print out the event
-	printf("Z=%d: ", zone);
-	char mask = 1 << (zone - 1);
-	printf( (zoneArmed & mask) ? "A," : "d," );
-	printf( (zoneStates & mask) ? "T\n" : "n\n" );
-#endif
-}
-
-/**
  * set the state of a particular zone 
  *
  *	Once triggered, a zone remains triggered for the configured
@@ -90,12 +68,21 @@ void ZoneManager::set( int zone, bool normal ) {
 			triggerTime[zone-1] = t;
 		}
 	}
-#ifdef	DEBUG
+#ifdef	DEBUG_EVT
 	if (debug > 1) {
-		logEvent(millis(), zone);
+		// excuse: strings take up data space
+		logTime(millis());
+		putchar( normal ? '-' : '!' );
+		putchar(' ');
+		putchar('z');
+		putchar('o');
+		putchar('n');
+		putchar('e');
+		putchar(' ');
+		putchar('0' + zone);
+		putchar('\n');
 	}
 #endif
-
 }
 
 /**
@@ -115,9 +102,26 @@ void ZoneManager::arm( int zone, bool armed ) {
 		zoneStates &= ~mask;
 		triggerTime[zone-1] = 0;
 	}
-#ifdef	DEBUG
+#ifdef	DEBUG_EVT
 	if (debug > 1) {
-		logEvent(millis(), zone);
+		// excuse: strings take up data space
+		logTime(millis());
+		if (!armed) {
+			putchar('d');
+			putchar('i');
+			putchar('s');
+		}
+		putchar('A');
+		putchar('R');
+		putchar('M');
+		putchar(' ');
+		putchar('z');
+		putchar('o');
+		putchar('n');
+		putchar('e');
+		putchar(' ');
+		putchar('0' + zone);
+		putchar('\n');
 	}
 #endif
 }

@@ -17,14 +17,6 @@ class ZoneManager {
     ZoneManager( Config *config );
     
     /**
-     * log a zone state change event
-     *
-     * @param time (in milliseconds of event)
-     * @param zone that experienced the change
-     */
-    void logEvent( unsigned long mstime, int zone );
-
-    /**
      * set the state of a particular zone relay
      *
      */
