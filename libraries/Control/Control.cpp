@@ -35,7 +35,7 @@ char ControlManager::read() {
 	char ret = 0;
 	for (int i = 0; i < cfg->controls->num_bits; i++ ) {
 		unsigned value = analogRead( cfg->controls->pin(i) );
-		bool high = value > (cfg->controls->scale(i)/2) ;
+		bool high = value > cfg->controls->scale(i) ;
 		if (cfg->controls->sense(i) == high)
 			ret |= 1 << i;
 

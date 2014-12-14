@@ -177,11 +177,14 @@ const short ledparms[] PROGMEM =
 /*
  * this is the configuration for the control input signals
  */
+#define	C_lo	0	// low asserted
+#define	C_hi	1	// high asserted
+
 const short ctrlcfg[][3] PROGMEM = {
-	A0,	0,	1024,
-	A1,	0,	1024,
-	A2,	0,	1024,
-	A3,	0,	1024,
+	A0,	C_lo,	925,	// diode eats much of the voltage
+	A1,	C_lo,	925,	// diode eats much of the voltage
+	A2,	C_lo,	925,	// diode eats much of the voltage
+	A3,	C_lo,	925,	// diode eats much of the voltage
 	-1,	-1,	-1
 };
 
