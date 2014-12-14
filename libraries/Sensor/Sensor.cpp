@@ -78,8 +78,10 @@ void SensorManager::sample() {
 	// latch the current values
 	inshifter->read();
 
+#ifdef BROKEN
 	// start all relays out normal
 	zoneMgr->resetAll();
+#endif
 	
 	// run through all of the configured sensors
 	for( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
@@ -123,32 +125,36 @@ void SensorManager::sample() {
 #endif
 	    }
 	
-	    // figure out what to do with the lights and zone
-	    enum ledState state = led_green;
-	    enum ledBlink blink = triggered(i) ? led_med : led_none;
-	    if (!v) {	// this sensor is in a triggered state
+	    // figure out if this sensor has been triggered
+	    if (!v)
 		triggered(i, true);
-
-		// see whether or not the zone is armed
-		int z = cfg->sensors->zone(i);
-		unsigned char mask = 0;
-		if (z >= 1 && z <= 8)
-			mask = 1 << (z-1);
-		if ((zoneArmed & mask) != 0) {
-	        	zoneMgr->set( z, false );
-			state = led_red;
-			blink = led_fast;
-		} else {
-			state = led_yellow;
-			blink = led_med;
-	    	}
+	
+	    // figure out whether or not the sensor/zone is armed
+	    int z = cfg->sensors->zone(i);
+	    unsigned char armed = 0;
+	    if (z >= 1 && z <= 8) {
+		armed = zoneArmed & (1 << (z-1));
+#ifdef BROKEN
+		if (!v && armed != 0)
+			zoneMgr->set(z, false);
+#endif
 	    }
 
-	    // set the LED status to reflect the sensor status
+	    // figure out what to do with the LEDs
+	    enum ledState state = led_green;
+	    enum ledBlink blink = led_none;
+	    if (!v) {
+	    	state = (armed != 0) ? led_red : led_yellow;
+	    } else if (triggered(i)) {
+	    	state = (armed != 0) ? led_red : led_yellow;
+	    	blink = (armed != 0) ? led_fast : led_med;
+	    } else if (armed !=0)
+	    	blink = led_slow;
 	    setLed( i, state, blink );
 	}
-
+#ifdef BROKEN
 	zoneMgr->update();	// flush out the zone relays
+#endif
 }
 
 /**
