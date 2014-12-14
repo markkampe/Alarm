@@ -160,11 +160,6 @@ struct ShiftCfg inCfg	= { 4,	5,    6,    7 };
 struct ShiftCfg outCfg	= { 8,  2,    3,    4 };
 
 /*
- * system armed indicator
- */
-struct ArmCfg armCfg = { A0, 0, 1024 };
-
-/*
  * this is the configuration for the LEDs
  * (duty cycles and blink rates)
  */
@@ -179,6 +174,29 @@ const short ledparms[] PROGMEM =
 #define	LED_blink_med	4
 #define	LED_blink_fast	5
 
+/*
+ * this is the configuration for the control input signals
+ */
+const short ctrlcfg[][3] PROGMEM = {
+	A0,	0,	1024,
+	A1,	0,	1024,
+	A2,	0,	1024,
+	A3,	0,	1024,
+	-1,	-1,	-1
+};
+
+/**
+ * accessor routine for sensor config data in text segment
+ */
+static short get_ctrl_data( int i, int x ) {
+	const short *p = &ctrlcfg[i][x];
+	return pgm_read_word_near(p);
+}
+
+#define	CTRL_PIN	0
+#define	CTRL_SENSE	1
+#define	CTRL_SCALE	2
+
 /**
  * constructor for the configuration manager
  * (which pulls together all the pieces)
@@ -191,9 +209,6 @@ Config::Config() {
 
 	// load up the LED configuration
 	leds = new LedCfg();
-
-	// load up the system armed indicator configuration
-	arm = &armCfg;
 
 	// figure out how many sensors are configured
 	int num_sensors = 0;
@@ -216,6 +231,15 @@ Config::Config() {
 		num_relays++;
 	}
 	zones = new ZoneCfg( num_zones, num_relays );
+
+	int num_controls = 0;
+	for( int i = 0; i < 8; i++ ) {
+		int p = get_ctrl_data(i, CTRL_PIN);
+		if (p < 0)
+			break;
+		num_controls++;
+	}
+	controls = new CtrlCfg(num_controls);
 }
 
 /*
@@ -305,4 +329,21 @@ int ZoneCfg::normal( int i ) {
 
 int ZoneCfg::pin( int i ) {
     return (i < num_zones) ? get_zone_data(i, X_pin) : -1;
+}
+
+// constructor and accessor functions for control configuration ifno
+CtrlCfg::CtrlCfg( int num_ctrl ) {
+	num_bits = num_ctrl;
+}
+
+int CtrlCfg::pin( int i ) {
+	return (i < num_bits) ?  get_ctrl_data(i, CTRL_PIN) : -1;
+}
+
+bool CtrlCfg::sense( int i ) {
+	return (i < num_bits) ?  get_ctrl_data(i, CTRL_SENSE) : -1;
+}
+
+int CtrlCfg::scale( int i ) {
+	return (i < num_bits) ?  get_ctrl_data(i, CTRL_SCALE) : -1;
 }

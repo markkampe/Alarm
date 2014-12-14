@@ -29,12 +29,8 @@ SensorManager::SensorManager(	Config *config,
 	outshifter = output;
 	zoneMgr = zonemanager;
 
-#ifdef	DEBUG
-#define	ANALOG_PIN(x) (x-14)
+#ifdef	DEBUG_CFG
 	if (debug) {
-		printf("Control: Arm pin=A%d, armed=%d/%d\n",
-			ANALOG_PIN(cfg->arm->pin_arm), 
-			cfg->arm->sense_arm, cfg->arm->full_scale );
 		printf("LEDs: <r,g,0>=<%d,%d,%d>us, blink=<%d,%d,%d>ms\n",
 			cfg->leds->usRed(), cfg->leds->usGreen(), cfg->leds->usOff(),
 			cfg->leds->fast(), cfg->leds->med(), cfg->leds->slow());
@@ -49,7 +45,7 @@ SensorManager::SensorManager(	Config *config,
 		if (cfg->sensors->in(i) != 255)
 			states[i] |= S_green;
 		debounce[i] = 0;	// we are not currently debouncing
-#ifdef DEBUG
+#ifdef DEBUG_CFG
 		if (debug) {
 			printf("Sensor: %s zone=%d, s/d=<%d,%d>, in=%d, <red,grn>=<%d,%d>\n",
 				cfg->sensors->name(i),
@@ -451,13 +447,4 @@ bool SensorManager::previous( int sensor ) {
 		return (states[sensor] & S_prev) != 0;
 	else
 		return( false );
-}
-
-/*
- * figure out whether or not we are armed
- */
-bool SensorManager::checkArmed() {
-    unsigned value = analogRead( cfg->arm->pin_arm );
-    bool high = value >= cfg->arm->full_scale/2;
-    return (cfg->arm->sense_arm == high);
 }

@@ -48,8 +48,6 @@ class SensorManager {
 	led_none = 0, led_slow, led_med, led_fast
     };
 
-    bool checkArmed();
-
   private:
     /*
      * Memory is so precious on the Arduino that we:

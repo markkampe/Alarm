@@ -2,6 +2,7 @@
 #define	CONFIG_H
 
 #define	DEBUG		1	// enable debug output
+//#define	DEBUG_CFG	1	// enable configuration debug
 
 // maximum timeout interval ... used for wrap detection
 #define	MAX_TIMEOUT	(10*60*1000)
@@ -82,12 +83,19 @@ class LedCfg {
 };
 
 /**
- * configurations for the system armed indicator
+ * configurations for the system control inputs
  */
-struct ArmCfg {
-	char pin_arm;		// analog pin to read
-	bool sense_arm;		// high asserted?
-	int full_scale;		// full scale reading
+class CtrlCfg {
+    public:
+	char num_bits;		// number of valid bits
+	int pin(int i);		// analog pin to read
+	bool sense(int i);	// high asserted?
+	int scale(int i);	// full scale reading
+
+	/**
+	 * @param: number of valid /bits
+	 */
+	CtrlCfg( int bits );
 };
 
 /**
@@ -102,7 +110,7 @@ class Config {
 	LedCfg *leds;
 	SensorCfg *sensors;
 	ZoneCfg *zones;
-	ArmCfg *arm;
+	CtrlCfg *controls;
 
 	Config();
 };
