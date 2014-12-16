@@ -41,14 +41,18 @@ SensorManager::SensorManager(	Config *config,
 	}
 #endif
 	// allocate and intialize the sensor status and debounce arrays
-	debounce = (unsigned char *) malloc( cfg->sensors->num_sensors );
 	states = (unsigned char *) malloc( cfg->sensors->num_sensors );
+#ifdef DEBOUNCE
+	debounce = (unsigned char *) malloc( cfg->sensors->num_sensors );
+#endif
 	for ( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
 		// all sensors start out normal, all enabled sensors green
 		states[i] = S_status | S_prev | (cfg->sensors->sense(i) ? S_sense : 0);	
 		if (cfg->sensors->in(i) != 255)
 			states[i] |= S_green;
+#ifdef DEBOUNCE
 		debounce[i] = 0;	// we are not currently debouncing
+#endif
 #ifdef DEBUG_CFG
 		if (debug) {
 			printf("Sensor: %s zone=%d, s/d=<%d,%d>, in=%d, <red,grn>=<%d,%d>\n",
@@ -99,12 +103,14 @@ void SensorManager::sample() {
 	    // see if the value is stable (same as last sample)
 	    if (v != previous(i)) {
 		previous(i,v);
+#ifdef DEBOUNCE
 		debounce[i] = cfg->sensors->delay(i) + 1;
 	    } 
 
 	    if (debounce[i] > 0) {
 		debounce[i] = debounce[i] - 1;
 		continue;
+#endif
 	    }
 
 	    // see if the stable value is a change
