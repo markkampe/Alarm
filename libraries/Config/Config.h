@@ -33,31 +33,13 @@ class SensorCfg {
 	int red( int i );	// output cascade index
 	int green( int i );	// output cascade index
 
+	int numZones();		// number of configured zones
+	int zonePin( int i );	// output pin for each zone
+
 	/**
 	 * @param number of sensors to be configured
 	 */
 	SensorCfg( int number );
-};
-
-
-/**
- * configuration of a zone alarm relay
- */
-class ZoneCfg {
-    public:
-	char num_zones;		// highest zone #
-	char num_relays;	// number of configured relays
-	char min_trigger;	// stretch triggers to this period
-
-	int zone(int i);	// zone it reflects
-	int normal(int i);	// non-tripped state
-	int pin(int i);		// output pin number
-
-	/**
-	 * @param number of zones to be configured
-	 * @pram number of relays to be configured
-	 */
-	ZoneCfg( int zones, int relays );
 };
 
 /**
@@ -110,7 +92,6 @@ class Config {
 	ShiftCfg *output;
 	LedCfg *leds;
 	SensorCfg *sensors;
-	ZoneCfg *zones;
 	CtrlCfg *controls;
 
 	Config();

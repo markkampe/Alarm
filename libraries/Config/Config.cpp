@@ -14,26 +14,28 @@
 
 /*
  * this is the configuration of all of the zone
- * alarm relays ... I would do it in a structure,
- * but ardunio doesn't support struct[] initialization.
- * And because memory is so dear on an Ardunio, I
- * decided to put it in PROGMEM.
+ * alarm relays.  It is only a few bytes, but the Uno
+ * only has a few bytes, so I keep it in PROGMEM
  */
-#define	Z_dis	0	// disabled
+#define	Z_dis	0	// disabled ... ignore
 #define	Z_ent	1	// entry
 #define	Z_ext	2	// external perimeter
 #define	Z_brk	3	// window breakage
 #define	Z_int	4	// OK if people are home
 
-const char zonecfg[][3] PROGMEM = {
-//  zone  normal  pin
-  { Z_ent,  0,	   8  },	// legitimate entrances
-  { Z_ext,  0,	   9  },	// obvious break-in points
-  { Z_brk,  0,	   10 },	// window breakage sensors
-  { Z_int,  0,	   11 },	// OK if people are home
-  {     5,  0,     12 },	// unused zone
-  {-1,	  -1,	  -1, }
+const char zonecfg[] PROGMEM = {
+  	8,	9,	10,	11
 };
+#define	NUM_ZONES	4
+
+/**
+ * accessor routine for zone config data in text segment
+ */
+static unsigned char get_zone_data( int zone ) {
+	const char *p = &zonecfg[zone-1];
+	return pgm_read_byte_near(p);
+}
+
 
 /* minimum period for a relay to remain triggered	*/
 #define	MINIMUM_TRIGGER	5
@@ -120,14 +122,6 @@ static unsigned char get_sensor_data( int sensor, int x ) {
 
 #define X_normal 1
 #define X_pin    2
-
-/**
- * accessor routine for zone config data in text segment
- */
-static unsigned char get_zone_data( int zone, int x ) {
-	const char *p = &zonecfg[zone][x];
-	return pgm_read_byte_near(p);
-}
 
 /**
  * construct a sensor name, based on the info byte
@@ -222,19 +216,7 @@ Config::Config() {
 	}
 	sensors = new SensorCfg( num_sensors );
 
-	// figure out how many zones are configured
-	int num_relays = 0;
-	int num_zones = 0;
-	for ( int i = 0; i < 256; i++ ) {
-		int z = sensors->zone(i);
-		if (z < 0)
-			break;
-		if (z > num_zones)
-			num_zones = z;
-		num_relays++;
-	}
-	zones = new ZoneCfg( num_zones, num_relays );
-
+	// figure out how many control pins are configured
 	int num_controls = 0;
 	for( int i = 0; i < 8; i++ ) {
 		int p = get_ctrl_data(i, CTRL_PIN);
@@ -250,12 +232,6 @@ Config::Config() {
  */
 SensorCfg::SensorCfg( int numsensor ) {
 	num_sensors = numsensor;
-}
-
-ZoneCfg::ZoneCfg( int numzone, int numrelay ) {
-	num_zones = numzone;
-	num_relays = numrelay;
-	min_trigger = MINIMUM_TRIGGER;
 }
 
 // accessor functions for LED configuration info
@@ -321,17 +297,14 @@ int SensorCfg::delay( int i) {
 	return( 0 );
 }
 
-// accessor functions for zone configuration info
-int ZoneCfg::zone( int i ) {
-    return (i < num_zones) ? get_zone_data(i, X_zone) : -1;
+int SensorCfg::numZones() {
+	return(NUM_ZONES);
 }
 
-int ZoneCfg::normal( int i ) {
-    return (i < num_zones) ? get_zone_data(i, X_normal) : 0;
-}
-
-int ZoneCfg::pin( int i ) {
-    return (i < num_zones) ? get_zone_data(i, X_pin) : -1;
+int SensorCfg::zonePin( int z ) {
+	if (z <= 0 || z > NUM_ZONES)
+		return( -1 );
+	return get_zone_data( z );
 }
 
 // constructor and accessor functions for control configuration ifno

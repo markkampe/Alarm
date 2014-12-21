@@ -2,7 +2,6 @@
 #define sensor_h
 
 #include <Shiftreg.h>
-#include <Zone.h>
 
 /**
  * a managed collection of sensors and their status indicators
@@ -18,7 +17,7 @@ class SensorManager {
      * @param output	OutShifter for the indicators
      * @param zones	Zone manager for alarm relays
      */
-    SensorManager( Config *config, InShifter *input, OutShifter *output, ZoneManager *zones );
+    SensorManager( Config *config, InShifter *input, OutShifter *output );
 
     /**
      * read the current status of the input cascade
@@ -55,6 +54,7 @@ class SensorManager {
     void arm( int zone, bool armed );
 
     unsigned char zoneArmed;	// zone armed bits
+    unsigned char zoneState;	// zone triggered bits
 
   private:
     /*
@@ -71,7 +71,6 @@ class SensorManager {
     Config     *cfg;		// configuration object
     InShifter  *inshifter;	// input shift cascade for collection
     OutShifter *outshifter;	// output shift cascade for collection
-    ZoneManager *zoneMgr;	// zone alarm relays
 
     unsigned char *debounce;	// debounce counts for each sensor
     unsigned char *states;	// state bytes for each sensor

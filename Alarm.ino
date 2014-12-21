@@ -19,7 +19,6 @@
  */
 #include <Config.h>
 #include <Shiftreg.h>
-#include <Zone.h>
 #include <Sensor.h>
 #include <Control.h>
 #include <stdio.h>
@@ -27,7 +26,6 @@
 const  int ledPin = 13; // on-board status LED
 
 SensorManager *mgr;	// sensor collection manager
-ZoneManager *zones;     // zone collection manager
 ControlManager *ctrls;  // control collection manager
 int debug = 0;          // enables serial port logging
 
@@ -96,11 +94,8 @@ void setup() {
 	OutShifter *output = new OutShifter( cfg->output->num_regs,
 				cfg->output->data, cfg->output->clock, cfg->output->latch );
 
-	// allocate a zone manager for known zone relays
-	zones = new ZoneManager( cfg );
-
 	// allocate a sensor manager for the known sensors
-	mgr = new SensorManager( cfg, input, output, zones );
+	mgr = new SensorManager( cfg, input, output );
 
         // allocate a control manager for the defined input controls
         ctrls = new ControlManager( cfg );

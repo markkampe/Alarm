@@ -24,14 +24,13 @@ extern void logTime( unsigned long );
  * @param zonemanager for zone alarm relays
  */
 SensorManager::SensorManager(	Config *config,
-				InShifter *input, OutShifter *output,
-				ZoneManager *zonemanager  ) {
+				InShifter *input, OutShifter *output ) {
 	// note our lower level resource managers
 	cfg = config;
 	inshifter = input;
 	outshifter = output;
-	zoneMgr = zonemanager;
 	zoneArmed = 0;
+	zoneState = 0;
 
 #ifdef	DEBUG_CFG
 	if (debug) {
@@ -66,7 +65,18 @@ SensorManager::SensorManager(	Config *config,
 		}
 #endif
 	}
-
+	
+	// configure the zone relay control pins
+	for( int i = 1; i <= cfg->sensors->numZones(); i++ ) {
+		int p = cfg->sensors->zonePin(i);
+		if (p >= 0) {
+			pinMode(p, OUTPUT);
+#ifdef DEBUG_CFG
+			if (debug)
+				printf("Zone: %d, pin=%d\n", i, p);
+#endif
+		}
+	}
 }
 
 
@@ -82,10 +92,8 @@ void SensorManager::sample() {
 	// latch the current values
 	inshifter->read();
 
-#ifdef BROKEN
 	// start all relays out normal
-	zoneMgr->resetAll();
-#endif
+	zoneState = 0;
 	
 	// run through all of the configured sensors
 	for( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
@@ -140,10 +148,8 @@ void SensorManager::sample() {
 	    unsigned char armed = 0;
 	    if (z >= 1 && z <= 8) {
 		armed = zoneArmed & (1 << (z-1));
-#ifdef BROKEN
-		if (!v && armed != 0)
-			zoneMgr->set(z, false);
-#endif
+		if (armed && !v)
+			zoneState |= 1 << (z-1);
 	    }
 
 	    // figure out what to do with the LEDs
@@ -152,15 +158,12 @@ void SensorManager::sample() {
 	    if (!v) {
 	    	state = (armed != 0) ? led_red : led_yellow;
 	    } else if (triggered(i)) {
-	    	state = (armed != 0) ? led_red : led_yellow;
+	    	state = (armed != 0) ? led_red : led_green;
 	    	blink = (armed != 0) ? led_fast : led_med;
 	    } else if (armed !=0)
 	    	blink = led_slow;
 	    setLed( i, state, blink );
 	}
-#ifdef BROKEN
-	zoneMgr->update();	// flush out the zone relays
-#endif
 }
 
 /**
@@ -234,8 +237,14 @@ void SensorManager::update() {
         if (cfg->leds->usOff() > 0)
 		delayMicroseconds((1+cfg->leds->usOff())/2);
 
-	// and update the zone alarm relays
-	zoneMgr->update();
+	// flush out the state of each trigger relay
+	for( int i = 0; i < cfg->sensors->numZones(); i++ ) {
+		int p = cfg->sensors->zonePin(i + 1);
+		if (p > 0) {
+			int t = zoneState & (1 << i);
+			digitalWrite(p, t ? HIGH : LOW);
+		}
+	}
 }
 
 /**
