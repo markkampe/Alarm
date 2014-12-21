@@ -87,10 +87,10 @@ const char sensorcfg[][6] PROGMEM = {
   {  Z_ent, S_lo,    9,   18,   19,   D_reed },	// garage door	T24/orn
   {  Z_ext, S_lo,   10,   20,   21,   D_reed },	// shop door	T25/grn
   {  Z_int, S_lo,   11,   22,   23,   D_reed },	// din rm sld	B20/blu
-  {  Z_dis, S_lo,   12,   24,   25,   D_reed },	// north br	T18/blu	OPEN
+  {  Z_ext, S_lo,   12,   24,   25,   D_reed },	// north br	T18/blu	JUMPERED
   {  Z_brk, S_lo,   13,   26,   27,   D_merc },	// n br brk L	T19/orn
   {  Z_brk, S_lo,   14,   28,   29,   D_merc },	// n br brk R	T20/orn JUMPERED
-  {  Z_dis, S_lo,   15,   30,   31,   D_mot  },	// stairway 	B23/blu BROKEN
+  {  Z_int, S_lo,   15,   30,   31,   D_mot  },	// stairway 	NO SENSOR
   {  Z_ent, S_lo,   16,   32,   33,   D_reed },	// back entry	B14/blu
   {  Z_ext, S_lo,   17,   34,   35,   D_reed },	// basement dr	B15/grn
   {  Z_brk, S_lo,   18,   36,   37,   D_merc },	// stdy brk s L	B05/orn
