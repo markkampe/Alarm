@@ -73,7 +73,7 @@ SensorManager::SensorManager(	Config *config,
 			pinMode(p, OUTPUT);
 #ifdef DEBUG_CFG
 			if (debug)
-				printf("Zone: %d, pin=%d\n", i, p);
+				printf("Relay: %d, pin=%d\n", i, p);
 #endif
 		}
 	}
@@ -400,6 +400,19 @@ void SensorManager::reset() {
 	for( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
 		triggered(i, false);
 	}
+
+#ifdef	DEBUG_EVT
+	if (debug > 1) {	
+		// excuse: strings take up data space
+		logTime( millis() );
+		putchar('R');
+		putchar('E');
+		putchar('S');
+		putchar('E');
+		putchar('T');
+		putchar('\n');
+	}
+#endif
 }
 
 /**

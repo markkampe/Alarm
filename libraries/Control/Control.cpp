@@ -17,9 +17,9 @@ ControlManager::ControlManager( Config *config ) {
 	for (int i = 0; i < cfg->controls->num_bits; i++ ) {
 #ifdef	DEBUG_CFG
 		if (debug) {
-			printf("CONTROL: zone=%d, pin=%d, sense=%d, thresh=%d\n",
-				i+1,
-				cfg->controls->pin(i),
+			printf("Arm: zone=%d, pin=A%d, sense=%d, thresh=%d\n",
+				i,
+				cfg->controls->pin(i)-A0,
 				cfg->controls->sense(i),
 				cfg->controls->scale(i));
 		}

@@ -24,7 +24,7 @@
 #define	Z_int	4	// OK if people are home
 
 const char zonecfg[] PROGMEM = {
-  	8,	9,	10,	11
+  	8,	9,	10,	11,	12
 };
 #define	NUM_ZONES	4
 
@@ -176,9 +176,11 @@ const short ledparms[] PROGMEM =
 
 const short ctrlcfg[][3] PROGMEM = {
 	A0,	C_lo,	925,	// diode eats much of the voltage
-	A1,	C_lo,	925,	// diode eats much of the voltage
-	A2,	C_lo,	925,	// diode eats much of the voltage
-	A3,	C_lo,	925,	// diode eats much of the voltage
+	A1,	C_lo,	512,
+	A2,	C_lo,	512,
+	A3,	C_lo,	512,
+	A4,	C_lo,	512,
+	A5,	C_lo,	512,
 	-1,	-1,	-1
 };
 

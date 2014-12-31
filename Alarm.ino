@@ -140,17 +140,19 @@ void loop() {
 			}
 #endif
 			// check for changes in zone armedness
+			//	bit 0:		system arm/reset
+			//	bits 1-7:	zone arms
 			unsigned char armed = ctrls->read();
 			unsigned char difs = armed ^ prevArm;
 			if (difs != 0) {
 				for( int i = 0; i < 8; i++ ) {
 					char mask = 1 << i;
 					if ((difs & mask) != 0) {
-						if (armed & mask) {  // arm
-							mgr->arm(i+1, true);
+						bool on = (armed & mask);
+						if (i > 0) {	// zone enable
+							mgr->arm(i, on);
+						} else if (on) { // system arm
 							mgr->reset();
-						} else {	// disarm
-							mgr->arm(i+1, false);
 						}
 					}
 				}

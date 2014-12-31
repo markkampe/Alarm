@@ -32,7 +32,7 @@ OutShifter::OutShifter( int regs, int dataP, int clockP, int latchP ) :
 #ifdef	DEBUG_CFG
     extern int debug;
     if (debug) {
-	printf("Outshifter: regs=%d, data=%d, clock=%d, latch=%d\n",
+	printf("O-shift: regs=%d, data=%d, clock=%d, latch=%d\n",
 		regs, dataP, clockP, latchP );
     }
 #endif
@@ -91,7 +91,7 @@ InShifter::InShifter( int regs, int dataP, int clockP, int latchP ) :
 #ifdef	DEBUG_CFG
 	extern int debug;
 	if (debug) {
-		printf("Inshifter: regs=%d, data=%d, clock=%d, latch=%d\n",
+		printf("I-shift: regs=%d, data=%d, clock=%d, latch=%d\n",
 			regs, dataP, clockP, latchP );
 	}
 #endif
