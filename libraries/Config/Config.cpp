@@ -175,7 +175,7 @@ const short ledparms[] PROGMEM =
 #define	C_hi	1	// high asserted
 
 const short ctrlcfg[][3] PROGMEM = {
-	A0,	C_lo,	925,	// diode eats much of the voltage
+	A0,	C_lo,	512,
 	A1,	C_lo,	512,
 	A2,	C_lo,	512,
 	A3,	C_lo,	512,
