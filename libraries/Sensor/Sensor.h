@@ -30,11 +30,6 @@ class SensorManager {
     void update();
 
     /**
-     * reset all triggered indications
-     */
-    void reset();
-
-    /**
      * lamp-test during the first few start-up cycles
      */
     bool lampTest( bool force );

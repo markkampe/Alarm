@@ -149,11 +149,7 @@ void loop() {
 					char mask = 1 << i;
 					if ((difs & mask) != 0) {
 						bool on = (armed & mask);
-						if (i > 0) {	// zone enable
-							mgr->arm(i, on);
-						} else if (on) { // system arm
-							mgr->reset();
-						}
+						mgr->arm(i, on);
 					}
 				}
 			} 
