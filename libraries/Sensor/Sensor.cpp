@@ -11,6 +11,7 @@
 #include <Arduino.h>
 
 extern int debug;	// debug level
+
 #ifdef DEBUG_EVT
 extern void logTime( unsigned long );
 #endif
@@ -94,6 +95,9 @@ void SensorManager::sample() {
 
 	// start all relays out normal
 	zoneState = 0;
+
+	// note whether or not system is currently armed
+	unsigned char armed = zoneArmed & 1;
 	
 	// run through all of the configured sensors
 	for( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
@@ -139,28 +143,27 @@ void SensorManager::sample() {
 #endif
 	    }
 	
-	    // figure out if this sensor has been triggered
-	    if (!v)
-		triggered(i, true);
-	
-	    // figure out whether or not the sensor/zone is armed
+	    // figure out whether system and sensor/zone are armed
+	    unsigned char enabled = 0;
 	    int z = cfg->sensors->zone(i);
-	    unsigned char armed = 0;
 	    if (z >= 1 && z <= 8) {
-		armed = zoneArmed & (1 << (z-1));
-		if (armed && !v)
-			zoneState |= 1 << (z-1);
+		enabled = zoneArmed & (1 << z);
+		if (enabled && !v) {
+			zoneState |= 1 << z;
+			if (armed)
+				triggered(i, true);
+	    	}
 	    }
 
-	    // figure out what to do with the LEDs
+	    // figure out what to do with the LEDs for this sensor
 	    enum ledState state = led_green;
 	    enum ledBlink blink = led_none;
 	    if (!v) {
-	    	state = (armed != 0) ? led_red : led_yellow;
+	    	state = (armed && enabled) ? led_red : led_yellow;
 	    } else if (triggered(i)) {
-	    	state = (armed != 0) ? led_red : led_green;
-	    	blink = (armed != 0) ? led_fast : led_med;
-	    } else if (armed !=0)
+	    	state = led_red;
+	    	blink = led_fast;
+	    } else if (armed && enabled)
 	    	blink = led_slow;
 	    setLed( i, state, blink );
 	}
@@ -238,8 +241,8 @@ void SensorManager::update() {
 		delayMicroseconds((1+cfg->leds->usOff())/2);
 
 	// flush out the state of each trigger relay
-	for( int i = 0; i < cfg->sensors->numZones(); i++ ) {
-		int p = cfg->sensors->zonePin(i + 1);
+	for( int i = 1; i <= cfg->sensors->numZones(); i++ ) {
+		int p = cfg->sensors->zonePin(i);
 		if (p > 0) {
 			int t = zoneState & (1 << i);
 			digitalWrite(p, t ? HIGH : LOW);
@@ -394,28 +397,6 @@ int SensorManager::blinkRate( int sensor ) {
 }
 
 /**
- * reset the triggered status of all sensors
- */
-void SensorManager::reset() {
-	for( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
-		triggered(i, false);
-	}
-
-#ifdef	DEBUG_EVT
-	if (debug > 1) {	
-		// excuse: strings take up data space
-		logTime( millis() );
-		putchar('R');
-		putchar('E');
-		putchar('S');
-		putchar('E');
-		putchar('T');
-		putchar('\n');
-	}
-#endif
-}
-
-/**
  * set the triggered indication for a sensor
  *
  * @param sensor number
@@ -445,9 +426,16 @@ bool SensorManager::triggered( int sensor ) {
 * @param armed
 */
 void SensorManager::arm( int zone, bool armed ) {
-	if (zone < 1 || zone > 8)
+	if (zone < 0 || zone > 8)
 		return;
-	unsigned char mask = 1 << (zone-1);
+	if (zone == 0 && armed) {	// system arm implies reset
+		for( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
+			triggered(i, false);
+		}
+	}
+
+	// update zoneArmed state accordingly
+	unsigned char mask = 1 << zone;
 	if (armed)
 		zoneArmed |= mask;
 	else
