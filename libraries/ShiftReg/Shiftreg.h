@@ -1,5 +1,5 @@
-#ifndef shiftreg.h
-#define shiftreg.h
+#ifndef shiftreg_h
+#define shiftreg_h
 
 /**
  * a ShiftReg is the interface to a cascade of input or output

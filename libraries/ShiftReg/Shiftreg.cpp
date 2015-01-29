@@ -1,6 +1,6 @@
-#include "Config.h"
-#include "Arduino.h"
-#include "Shiftreg.h"
+#include <Config.h>
+#include <Arduino.h>
+#include <Shiftreg.h>
 
 /**
  * Create a new shift register cascade descriptor, 
