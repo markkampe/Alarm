@@ -1,8 +1,9 @@
 #ifndef CONFIG_H
 #define	CONFIG_H
 
-#define	DEBUG		1	// enable debug output
-#define	DEBUG_EVT	1	// enable event logging
+//#define	DEBUG		1	// enable debug output
+//#define	DEBUG_CMD	1	// enable debug commands
+//#define	DEBUG_EVT	1	// enable event logging
 //#define	DEBUG_CFG	1	// enable configuration debug
 
 // maximum timeout interval ... used for wrap detection

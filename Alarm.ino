@@ -36,7 +36,7 @@ static int uart_putchar( char c, FILE *stream ) {
     return( 0 );
 }
 
-#ifdef DEBUG
+#ifdef DEBUG_CMD
 // run-time diagnostic options
 void doDebug( char c ) {
   switch( c ) {
@@ -74,13 +74,14 @@ void doDebug( char c ) {
  * configure the pins and initialize the resource managers.
  */
 void setup() {                
+#ifdef DEBUG
 	// initialize serial port for diagnostics
 	Serial.begin(9600);
 	fdev_setup_stream( &uartout, uart_putchar, NULL, _FDEV_SETUP_WRITE );
 	stdout = &uartout;
 
-	// set default debug level
-	doDebug('2');
+	debug = 2;	// default debug level
+#endif
 
 	// initialize the LED for status
 	pinMode(ledPin, OUTPUT);  
@@ -133,7 +134,7 @@ void loop() {
 	if (flash != prevFlash) {
 		digitalWrite(ledPin, flash ? HIGH : LOW );
 		if (flash) {	// once per on/off cycle
-#ifdef DEBUG
+#ifdef DEBUG_CMD
 			// check for (unlikely) debug console input
 			if (Serial.available()) {
 				doDebug( Serial.read() );
