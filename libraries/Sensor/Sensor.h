@@ -69,6 +69,10 @@ class SensorManager {
 
     unsigned char *debounce;	// debounce counts for each sensor
     unsigned char *states;	// state bytes for each sensor
+#ifdef DEFIB
+    unsigned char *defib;	// defibrillation counts for each zone
+    unsigned nextUpdate;	// time of next defib count update
+#endif
 
 // bits in the sensor state bytes
 #define S_b_lo	 	0x01	// low order bit of blink rate

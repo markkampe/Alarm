@@ -39,6 +39,8 @@ static unsigned char get_zone_data( int zone ) {
 
 /* minimum period for a relay to remain triggered	*/
 #define	MINIMUM_TRIGGER	5
+#define MIN_INTERVAL	5	// seconds between triggers
+#define MAX_TRIGGERS	20	// consecutive fast triggers
 
 /*
  * this is the configuration of all of the sensors
@@ -324,4 +326,12 @@ bool CtrlCfg::sense( int i ) {
 
 int CtrlCfg::scale( int i ) {
 	return (i < num_bits) ?  get_ctrl_data(i, CTRL_SCALE) : -1;
+}
+
+int CtrlCfg::minInterval() {
+	return( MIN_INTERVAL );
+}
+
+int CtrlCfg::maxTriggers() {
+	return( MAX_TRIGGERS );
 }

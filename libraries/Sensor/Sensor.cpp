@@ -22,7 +22,6 @@ extern void logTime( unsigned long );
  * @param config object
  * @param input	InShifter for the sensors
  * @param output OutShifter for the indicators
- * @param zonemanager for zone alarm relays
  */
 SensorManager::SensorManager(	Config *config,
 				InShifter *input, OutShifter *output ) {
@@ -44,6 +43,10 @@ SensorManager::SensorManager(	Config *config,
 	states = (unsigned char *) malloc( cfg->sensors->num_sensors );
 #ifdef DEBOUNCE
 	debounce = (unsigned char *) malloc( cfg->sensors->num_sensors );
+#endif
+#ifdef DEFIB
+	defib = (unsigned char *) malloc( cfg->sensors->numZones() );
+	nextUpdate = 0;
 #endif
 	for ( int i = 0; i < cfg->sensors->num_sensors; i++ ) {
 		// all sensors start out normal, all enabled sensors green
@@ -77,6 +80,9 @@ SensorManager::SensorManager(	Config *config,
 				printf("Relay: %d, pin=%d\n", i, p);
 #endif
 		}
+#ifdef DEFIB
+		defib[i] = 0;
+#endif
 	}
 }
 
@@ -84,6 +90,17 @@ SensorManager::SensorManager(	Config *config,
 /**
  * read all of the inputs, debounce them, and update
  * the sensor and LED status accordingly.
+ *
+ * Notes on defibrilation:
+ *	We burned up some relays as a result of a failing sensor.
+
+ *	ctrl->minInterval() is fastest acceptable change rate
+ *	ctrl->maxTriggers() is defibrilation threshold
+ *	we increment a per-zone count every time a sensor changes
+ *	we decrement the count every minInterval
+ *	while count > maxTriggers, we consider zone to be fibrilating
+ *		and it is not allowed to trigger an alarm
+ *	we fast blink any triggered sensor in a fibrilating zone
  */
 void SensorManager::sample() {
 
@@ -125,9 +142,17 @@ void SensorManager::sample() {
 #endif
 	    }
 
+	    // note what zone this sensor is in
+	    int z = cfg->sensors->zone(i);
+
 	    // see if the stable value is a change
 	    if (v != status(i)) {
 	        status( i, v );
+#ifdef DEFIB
+		// count recent transitions in each zone
+		if (z >= 1 && z <= 8 && defib[z] < 255)
+			defib[z]++;
+#endif
 #ifdef	DEBUG_EVT
 		if (debug > 1) {	
 			// excuse: strings take up data space
@@ -144,11 +169,14 @@ void SensorManager::sample() {
 	    }
 	
 	    // figure out whether system and sensor/zone are armed
-	    unsigned char enabled = 0;
-	    int z = cfg->sensors->zone(i);
+	    unsigned char enabled;	// is the zone enabled
+	    unsigned char fibrilating = 0;
 	    if (z >= 1 && z <= 8) {
 		enabled = zoneArmed & (1 << z);
-		if (enabled && !v) {
+#ifdef DEFIB
+		fibrilating = (defib[z] >= cfg->controls->maxTriggers());
+#endif
+		if (enabled && !v && !fibrilating) {
 			zoneState |= 1 << z;
 			if (armed)
 				triggered(i, true);
@@ -160,9 +188,10 @@ void SensorManager::sample() {
 	    enum ledBlink blink = led_none;
 	    if (!v) {
 	    	state = (armed && enabled) ? led_red : led_yellow;
+		blink = fibrilating ? led_fast : led_none;
 	    } else if (triggered(i)) {
 	    	state = led_red;
-	    	blink = led_fast;
+	    	blink = fibrilating ? led_fast : led_med;
 	    } else if (armed && enabled)
 	    	blink = led_slow;
 	    setLed( i, state, blink );
@@ -240,14 +269,33 @@ void SensorManager::update() {
         if (cfg->leds->usOff() > 0)
 		delayMicroseconds((1+cfg->leds->usOff())/2);
 
-	// flush out the state of each trigger relay
+#ifdef DEFIB
+	unsigned s = now/1000;		// current (second) time
+	if (nextUpdate > s + cfg->controls->minInterval())
+		nextUpdate = s;		// correct for time wrap
+#endif
+	// zone updates
 	for( int i = 1; i <= cfg->sensors->numZones(); i++ ) {
+		// flush out the state of each trigger relay
 		int p = cfg->sensors->zonePin(i);
 		if (p > 0) {
 			int t = zoneState & (1 << i);
 			digitalWrite(p, t ? HIGH : LOW);
 		}
+#ifdef DEFIB
+		// decrement defib counters at max allowable rate
+		if (s >= nextUpdate) {
+			if (defib[i] > 0)
+				defib[i]--;
+		}
+#endif
 	}
+
+#ifdef DEFIB
+	// schedule the next counter update
+	if (s >= nextUpdate)
+		nextUpdate = s + cfg->controls->minInterval();
+#endif
 }
 
 /**
