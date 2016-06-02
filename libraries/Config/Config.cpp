@@ -77,9 +77,9 @@ static unsigned char get_zone_data( int zone ) {
  */
 const char sensorcfg[][6] PROGMEM = {
 //   zone   info    in   red   grn   debounce	location	pr#/color	
-  {  Z_ext, S_lo,    0,    0,    1,   D_reed },	// front rm rt  T14/blu JUMPERED
-  {  Z_ext, S_lo,    1,    2,    3,   D_reed },	// front rm lft T15/orn JUMPERED
-  {  Z_brk, S_lo,    2,    4,    5,   D_merc },	// front brk	T16/grn JUMPERED
+  {  Z_ext, S_lo,    0,    0,    1,   D_reed },	// front rm rt  T14/blu 
+  {  Z_ext, S_lo,    -1,   2,    3,   D_none },	// removed
+  {  Z_brk, S_lo,    -1,   4,    5,   D_none },	// removed
   {  Z_int, S_lo,    3,    6,    7,   D_reed },	// closet door	T22/blu
   {  Z_ext, S_lo,    4,    8,    9,   D_mech },	// bell tamper	T13/grn
   {  Z_int, S_lo,    5,   10,   11,   D_reed },	// mstr br sld	T21/brn
