@@ -6,6 +6,8 @@
 //#define	DEBUG_EVT	1	// enable event logging
 //#define	DEBUG_CFG	1	// enable configuration debug
 
+#define	DEFIB		1	// enable zone defibrillation
+
 // maximum timeout interval ... used for wrap detection
 #define	MAX_TIMEOUT	(10*60*1000)
 
@@ -75,6 +77,8 @@ class CtrlCfg {
 	int pin(int i);		// analog pin to read
 	bool sense(int i);	// high asserted?
 	int scale(int i);	// full scale reading
+	int minInterval();	// min reasonable inter-trigger (ms)
+	int maxTriggers();	// max consecutive triggers
 
 	/**
 	 * @param: number of valid /bits
