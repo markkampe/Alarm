@@ -280,7 +280,11 @@ void SensorManager::update() {
 		int p = cfg->sensors->zonePin(i);
 		if (p > 0) {
 			int t = zoneState & (1 << i);
+#ifdef ACTIVE_HIGH
 			digitalWrite(p, t ? HIGH : LOW);
+#else
+			digitalWrite(p, t ? LOW : HIGH);
+#endif
 		}
 #ifdef DEFIB
 		// decrement defib counters at max allowable rate

@@ -6,6 +6,8 @@
 //#define	DEBUG_EVT	1	// enable event logging
 //#define	DEBUG_CFG	1	// enable configuration debug
 
+//#define ACTIVE_HIGH	1	// relay triggers on high
+
 #define	DEFIB		1	// enable zone defibrillation
 
 // maximum timeout interval ... used for wrap detection
