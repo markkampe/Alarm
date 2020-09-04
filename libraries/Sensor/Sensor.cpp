@@ -104,9 +104,6 @@ SensorManager::SensorManager(	Config *config,
  */
 void SensorManager::sample() {
 
-	// note the time of this sample
-	unsigned long now = millis();
-
 	// latch the current values
 	inshifter->read();
 
@@ -156,7 +153,7 @@ void SensorManager::sample() {
 #ifdef	DEBUG_EVT
 		if (debug > 1) {	
 			// excuse: strings take up data space
-			logTime( now );
+			logTime( millis() );
 			putchar( v == 0 ? '!' : '-' );
 			putchar(' ');
 			putchar('S');
@@ -169,7 +166,7 @@ void SensorManager::sample() {
 	    }
 	
 	    // figure out whether system and sensor/zone are armed
-	    unsigned char enabled;	// is the zone enabled
+	    unsigned char enabled = 0;	// is the zone enabled
 	    unsigned char fibrilating = 0;
 	    if (z >= 1 && z <= 8) {
 		enabled = zoneArmed & (1 << z);
@@ -380,6 +377,7 @@ void SensorManager::setLed( int sensor, enum ledState state, enum ledBlink blink
 	switch( state ) {
 	   case led_yellow:
 		states[sensor] |= S_green;
+		/* fallsthrough */
 	   case led_red:
 		states[sensor] |= S_red;
 		break;
@@ -395,6 +393,7 @@ void SensorManager::setLed( int sensor, enum ledState state, enum ledBlink blink
 	switch( blink ) {
 	   case led_fast:
 		states[sensor] |= S_b_hi;
+		/* fallsthrough */
 	   case led_slow:
 		states[sensor] |= S_b_lo;
 		break;
@@ -456,10 +455,11 @@ int SensorManager::blinkRate( int sensor ) {
  */
 void SensorManager::triggered( int sensor, bool isTriggered ) {
 	if (sensor >= 0 && sensor < cfg->sensors->num_sensors)
-		if (isTriggered) 
+		if (isTriggered) {
 			states[sensor] |= S_trigger;
-		else
+		} else {
 			states[sensor] &= ~S_trigger;
+		}
 }
 
 /**

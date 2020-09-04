@@ -141,7 +141,7 @@ static unsigned char get_sensor_data( int sensor, int x ) {
  * @param	sensor number
  * @return	a descriptive name
  */
-const char *SensorCfg::name( int sensor ) {
+const char *SensorCfg::name( int /* sensor */ ) {
 	return "sensor";
 }
 

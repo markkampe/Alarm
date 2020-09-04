@@ -30,10 +30,10 @@ ControlManager *ctrls;  // control collection manager
 int debug = 0;          // enables serial port logging
 
 // glue to enable printf to write to the serial port
-static FILE uartout = {0};
-static int uart_putchar( char c, FILE *stream ) {
+static FILE uartout = {0, 0, 0, 0, 0, 0, 0, 0};
+static int uart_putchar( char c, FILE *stream) {
     Serial.write(c);
-    return( 0 );
+    return stream == 0 ? 0 : 0;
 }
 
 #ifdef DEBUG_CMD
@@ -188,5 +188,7 @@ void logTime( unsigned long mstime ) {
 	putchar('0' + (ms/10) % 10);
 	putchar('0' + ms%10);
 	putchar(' ');
+#else
+	mstime = mstime + 1;	/* lose unused parameter warning */
 #endif
 }
