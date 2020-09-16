@@ -7,19 +7,20 @@ a while to find the offending sensor.  Similarly, it the alarm was triggered,
 I would like to know from where.
 
 I had (for decades) wanted an alarm status panel that showed, on a house map,
-the status of every instrumented door/window/senso, and (if the system had
+the status of every instrumented door/window/sensor, and (if the system had
 been armed) which sensors had been triggered.  I am not a hardware guy, but
 I eventually decided that the most appropriate technology was an Arduino and 
 a bunch of shift registers:
    - dozens of sensors (NO or NC) are each connected to a shift register input
    - corresponding (tri-color LED) indicators are each connected to a shift register output
    - digital outputs for four zone status relays (entries, exterior, breakage, interior)
+     provide the NO/NC loops for the (vanilla) alarm controller.
    - analog (low-asserted control) inputs for *system armed* and *zone enables*.
 
 The indicator lights show the status of each sensor:
    - green: closed/OK (flashing means it is armed)
    - yellow: open (flashing means it has been triggered)
-   - red: armed and open
+   - red: armed and open (flashing meaning it has triggered the alarm)
 
 The relays (which can be configured for high-asserted or low-asserted) are only
 on when a sensor (in that zone) is not in the closed/OK state.  This is to minimize
@@ -52,7 +53,7 @@ rename it to be `$HOME/Arduino`.
 
 `Alarm/Alarm.ino` is the main program.
 All it does is 
-   - `setup`: instantiate the shift register controllers, `SensorManager` and `ControlManager`.
+   - `setup`: instantiate the `ShiftRegister` controllers, `SensorManager` and `ControlManager`.
    - `loop`:
       - on first call run a lamp test (`Sensor.lampTest`)
       - sample the status of each sensor and update the indicators (`SensorManager.sample`)
@@ -84,7 +85,7 @@ the code to initialize the AIO input pin programming and the `read` method
 which reads and returns their status as a byte of status bits.
 
 ### Sensor Manager
-`This is the module that contains the most interesting code:
+This is the module that contains the most interesting code:
 `libraries/Sensor/Sensor.h` and `Sensor.cpp`.
 
 The constructor allocates arrays for per-sensor status and debounce info,
@@ -95,11 +96,10 @@ all the sensors and:
    - calls the `InShifter.get` method to get the current status,
       - debouncing (make sure a value lasts long enough before accepting it)
       - defibrillating (checking for rapidly oscillating values that indicate
-        a sensor failure, and could burn out a zon status relay)
+        a sensor failure, and could burn out a zone status relay)
    - update the sensor status LEDs, with color and blinking based on the sensor and system states
 
-Each indicator has a combination of color (RED, YELLOW, GREEN) and illumination
-(OFF, ON, SLOW-FLASH, FAST-FLASH).  
-The `setLed` method specifies the color and illumination for a particular indicator.
-The `update` method looks at the nominal status for each LED, sets the appropriate
+Each indicator has a combination of color (RED, YELLOW, GREEN) and illumination (OFF, ON, SLOW-FLASH, FAST-FLASH).  
+The `setLed` method sets the desired color and illumination state for a particular indicator.
+The `update` method looks at this (per indicator) status, and sets the appropriate
 current RED and GREEN LED states, and uses the OutShifter to make it so.
