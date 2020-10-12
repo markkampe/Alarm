@@ -1,16 +1,29 @@
 # Arduino house monitoring board
 
-Alarm systems are simple: buy a $80 box, hook it up to a control panel,
-a battery, the bells, and some NC-sensor loops ... and you've got it.
-But when the system won't arm (because something is open) it can take
-a while to find the offending sensor.  Similarly, it the alarm was triggered,
-I would like to know from where.
+Old-school alarm systems are simple: buy a $80 box, hook it up to a
+control panel, a battery, the bells, and some NC-sensor loops ... 
+and you've got it.  But when the system won't arm (because something
+is open) it can take a while to find the offending sensor.  Similarly,
+if the alarm was triggered, I would like to know from where.  This
+is the situation we found ourselves in when we bought our first home
+(in 1978).
 
-I had (for decades) wanted an alarm status panel that showed, on a house map,
-the status of every instrumented door/window/sensor, and (if the system had
-been armed) which sensors had been triggered.  I am not a hardware guy, but
-I eventually decided that the most appropriate technology was an Arduino and 
-a bunch of shift registers:
+I long wanted an alarm status panel that showed, on a house map, the
+status of every instrumented door/window/sensor, and (if the system had
+been armed) which sensors had been triggered.
+
+> Today I could have a much better system (e.g. based on Ring) for $400
+> and two days of work.
+> 
+> Even twenty years ago the alarm system could have been a web-server
+> with status indications and an event log.
+>
+> But I grew up in the 60's and had wanted to build this for a long time.
+
+*Damn the obsolescence!  Full speed ahead!*
+
+I am not a hardware guy, but I eventually decided that the most appropriate
+technology was an Arduino and a bunch of shift registers:
    - dozens of sensors (NO or NC) are each connected to a shift register input
    - corresponding (tri-color LED) indicators are each connected to a shift register output
    - digital outputs for four zone status relays (entries, exterior, breakage, interior)
@@ -25,12 +38,6 @@ The indicator lights show the status of each sensor:
 The relays (which can be configured for high-asserted or low-asserted) are only
 on when a sensor (in that zone) is not in the closed/OK state.  This is to minimize
 current-draw and heat.
-
-If I were cooler, and had been designing this in the 21st century, I probably 
-would have made it a web-server with status indications and an event log.  But
-I grew up in the '60s and I always wanted this panel.  In fact, it is so old
-that it has holes and lights for window sensors that no longer exist 
-(due to remodels).
 
 ## Code Overview
 
