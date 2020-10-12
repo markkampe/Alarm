@@ -12,14 +12,11 @@ I long wanted an alarm status panel that showed, on a house map, the
 status of every instrumented door/window/sensor, and (if the system had
 been armed) which sensors had been triggered.
 
-> Today I could have a much better system (e.g. based on Ring) for $400
-> and two days of work.
-> 
-> Even twenty years ago the alarm system could have been a web-server
-> with status indications and an event log.
->
-> But I grew up in the 60's and had wanted to build this for a long time.
+   - Today I could have a much better system (e.g. based on Ring) for $400 and two days of work.
 
+   - Even with newer SoCs, the alarm system could have been a web-server with status indications and an event log.
+
+But I grew up in the 60's and had wanted to build this panel for a long time.
 *Damn the obsolescence!  Full speed ahead!*
 
 I am not a hardware guy, but I eventually decided that the most appropriate
