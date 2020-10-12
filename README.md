@@ -17,8 +17,8 @@ been armed) which sensors had been triggered.
      that have gone into this system).
 
    - Even if I insisted on building everything myself, an alarm system built on 
-     a newer SoC (e.g. Raspberry Pi, BeagleBone) the interface could have been a
-     web-server with maps, status indications and an event log.
+     a newer SoC (e.g. Raspberry Pi, BeagleBone) could have implemented the
+     interface as a web-server with maps, status indications and an event log.
 
 But I grew up in the 60's and had wanted to build this panel for a long time.
 *Damn the obsolescence!  Full speed ahead!*
