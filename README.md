@@ -8,11 +8,13 @@ if the alarm was triggered, I would like to know from where.  This
 is the situation we found ourselves in when we bought our first home
 (in 1978).
 
-I long wanted an alarm status panel that showed, on a house map, the
+I had long wanted an alarm status panel that showed, on a house map, the
 status of every instrumented door/window/sensor, and (if the system had
 been armed) which sensors had been triggered.
 
-   - Today I could have a much better system (e.g. based on Ring) for $400 and two days of work.
+   - Today I could have a much better system (e.g. based on Ring) for $400 
+     and two days of work (as opposed much more money and months of work
+     that have gone into this system).
 
    - Even if I insisted on building everything myself, an alarm system built on 
      a newer SoC (e.g. Raspberry Pi, BeagleBone) the interface could have been a
@@ -48,9 +50,10 @@ amount of stack/data.  This forced me to do unnatural gymnastics to:
    - minimize table sizes
 
 This also led me to compile-time-disable DEBUG code that generates 
-lots of diagnostic and per-event information, and a few debug commands.
+lots of diagnostic and per-event information, and implements a few
+debug commands.
 
-I built this in the Arduino IDE, which requires a somewhat unique
+I built this in the Arduino IDE, which requires a somewhat *unique*
 source structure.  To build this project, I download this repo and 
 rename it to be `$HOME/Arduino`.
 
