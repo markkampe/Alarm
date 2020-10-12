@@ -14,11 +14,12 @@ been armed) which sensors had been triggered.
 
    - Today I could have a much better system (e.g. based on Ring) for $400 and two days of work.
 
-   - Even with newer SoCs, the alarm system could have been a web-server with status indications and an event log.
+   - Even if I insisted on building everything myself, an alarm system built on 
+     a newer SoC (e.g. Raspberry Pi, BeagleBone) the interface could have been a
+     web-server with maps, status indications and an event log.
 
 But I grew up in the 60's and had wanted to build this panel for a long time.
 *Damn the obsolescence!  Full speed ahead!*
-
 I am not a hardware guy, but I eventually decided that the most appropriate
 technology was an Arduino and a bunch of shift registers:
    - dozens of sensors (NO or NC) are each connected to a shift register input
